@@ -6,6 +6,7 @@ from httpx import AsyncClient, ASGITransport
 from asgi_lifespan import LifespanManager
 from fastapi import status
 from app import app
+from core.agent_orchestrator import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
 
 # Load environment variables for tests
 load_dotenv()
@@ -14,7 +15,7 @@ TEST_API_KEY = os.getenv("API_KEY")
 if not TEST_API_KEY:
     pytest.skip("API_KEY not set in .env, skipping API key protected tests", allow_module_level=True)
 
-@pytest_asyncio.fixture(scope="function") #  to ensure fresh client/lifespan per test
+@pytest_asyncio.fixture(scope="function") # to ensure fresh client/lifespan per test
 async def client():    
     async with LifespanManager(app) as manager:        
         transport = ASGITransport(app=manager.app)
@@ -38,7 +39,7 @@ async def test_chat_flow(client: AsyncClient):
     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
 
     # Step 1: Send first message to start a chat session
-    response = await client.post("/api/v1/chat", json={"message": "Ciao, chi è Lorenzo Maiuri?"}, headers=headers)
+    response = await client.post("/api/v1/chat", json={"message": "Who is Lorenzo Maiuri?"}, headers=headers)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     chat_id = data.get("chatId")
@@ -46,14 +47,15 @@ async def test_chat_flow(client: AsyncClient):
     assert "message" in data
     assert "action" in data
 
-    # Step 2: Send second message in the same chat
-    response2 = await client.post("/api/v1/chat", json={"message": "E se volessi contattarlo?", "chatId": chat_id}, headers=headers)
+    # Step 2: Send second message in the same chat (general query)
+    response2 = await client.post("/api/v1/chat", json={"message": "Tell me about Lorenzo expertises.", "chatId": chat_id}, headers=headers)
     assert response2.status_code == status.HTTP_200_OK
     data2 = response2.json()
     assert data2["chatId"] == chat_id
     assert "message" in data2
     assert "action" in data2
-
+    assert data2["action"]["action_type"] == "show_skills"
+    
     # Step 3: Retrieve chat history
     history_response = await client.get(f"/api/v1/chat/{chat_id}/history", headers=headers)
     assert history_response.status_code == status.HTTP_200_OK
@@ -78,6 +80,107 @@ async def test_chat_flow(client: AsyncClient):
     assert invalid_data["totalMessages"] == 0
     assert invalid_data["messages"] == []
 
+
+@pytest.mark.asyncio
+async def test_tool_get_contact_info(client: AsyncClient):
+    headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+        
+    contact_queries = [
+        "How can I contact Lorenzo Maiuri?",
+    ]
+
+    for i, query in enumerate(contact_queries):
+        # Start a new chat for each query to ensure fresh agent state
+        response = await client.post("/api/v1/chat", json={"message": query}, headers=headers)
+        assert response.status_code == status.HTTP_200_OK, f"Failed for query: '{query}'"
+        data = response.json()
+        chat_id = data.get("chatId")
+        
+        assert chat_id is not None
+        assert "message" in data
+        assert "action" in data
+        
+        # Assert that the correct action type is returned
+        assert data["action"]["action_type"] == "show_contact", \
+            f"Expected 'show_contact' for query '{query}', got '{data['action']['action_type']}'"
+        
+        # Assert that the data matches the expected output from the tool function
+        expected_contact_data = get_contact_info_tool_function()
+        assert data["action"]["data"] == expected_contact_data, \
+            f"Contact data mismatch for query '{query}'. Expected {expected_contact_data}, got {data['action']['data']}"
+            
+        # Optional: Delete session after each test for isolation, or do it once at the end
+        await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
+        
+    print(f"\nSuccessfully tested {len(contact_queries)} 'get_contact_info' queries.")
+
+
+@pytest.mark.asyncio
+async def test_tool_get_projects(client: AsyncClient):
+    headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+    
+    # Test cases that should trigger get_projects
+    project_queries = [        
+        "What projects has Lorenzo worked on?",
+    ]
+
+    for i, query in enumerate(project_queries):
+        # Start a new chat for each query
+        response = await client.post("/api/v1/chat", json={"message": query}, headers=headers)
+        assert response.status_code == status.HTTP_200_OK, f"Failed for query: '{query}'"
+        data = response.json()
+        chat_id = data.get("chatId")
+        
+        assert chat_id is not None
+        assert "message" in data
+        assert "action" in data
+        
+        # Assert that the correct action type is returned
+        assert data["action"]["action_type"] == "show_projects", \
+            f"Expected 'show_projects' for query '{query}', got '{data['action']['action_type']}'"
+        
+        # Assert that the data matches the expected output from the tool function
+        expected_projects_data = get_projects_tool_function()
+        assert data["action"]["data"] == expected_projects_data, \
+            f"Projects data mismatch for query '{query}'. Expected {expected_projects_data}, got {data['action']['data']}"
+            
+        # Optional: Delete session after each test for isolation
+        await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
+
+    print(f"\nSuccessfully tested {len(project_queries)} 'get_projects' queries.")
+
+@pytest.mark.asyncio
+async def test_tool_get_skills(client: AsyncClient):
+    headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+        
+    contact_queries = [
+        "What can Lorenzo do?",
+    ]
+
+    for i, query in enumerate(contact_queries):
+        # Start a new chat for each query to ensure fresh agent state
+        response = await client.post("/api/v1/chat", json={"message": query}, headers=headers)
+        assert response.status_code == status.HTTP_200_OK, f"Failed for query: '{query}'"
+        data = response.json()
+        chat_id = data.get("chatId")
+        
+        assert chat_id is not None
+        assert "message" in data
+        assert "action" in data
+        
+        # Assert that the correct action type is returned
+        assert data["action"]["action_type"] == "show_skills", \
+            f"Expected 'show_skills' for query '{query}', got '{data['action']['action_type']}'"
+        
+        # Assert that the data matches the expected output from the tool function
+        expected_skills_data = get_skills_tool_function()
+        assert data["action"]["data"] == expected_skills_data, \
+            f"Skills data mismatch for query '{query}'. Expected {expected_skills_data}, got {data['action']['data']}"
+            
+        # Optional: Delete session after each test for isolation, or do it once at the end
+        await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
+        
+    print(f"\nSuccessfully tested {len(contact_queries)} 'get_contact_info' queries.")
 
 @pytest.mark.asyncio
 async def test_unauthorized_access(client: AsyncClient):
