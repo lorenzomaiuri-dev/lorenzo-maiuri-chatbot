@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
-from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime
 import logging
 
@@ -108,15 +107,13 @@ async def health_check(mongo: Mongo = Depends(get_mongo)):
     }
 
 @router.get("/stats")
-async def get_stats(mongo: Mongo = Depends(get_mongo), chatbot_service: EnhancedChatbotService = Depends(get_chatbot_service),):
+async def get_stats(mongo: Mongo = Depends(get_mongo)):
     """Get basic API statistics."""
     try:
         total_sessions = await mongo.sessions.count_documents({})
-        active_sessions = len(chatbot_service.chat_engines) # This is in-memory, so only for this instance
         
         return {
             "totalSessions": total_sessions,
-            "activeSessions": active_sessions,
             "timestamp": datetime.utcnow()
         }
     except Exception as e:

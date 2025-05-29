@@ -2,7 +2,7 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pymongo==4.13.0
 pydantic==2.5.0
-llama-index==0.9.13
+llama-index==0.12.37
 llama-index-llms-gemini==0.1.6
 openinference-instrumentation-llama_index==4.3.0
 python-multipart==0.0.6

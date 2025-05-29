@@ -24,8 +24,12 @@ class ChatRequest(BaseModel):
         return v.strip()
 
 class ActionData(BaseModel):
-    type: str = Field(..., pattern=r"^(none|show_contact|send_email|show_projects)$")
-    data: Dict[str, Any] = Field(default_factory=dict)
+    """
+    Represents an action to be performed by the frontend based on bot's response.
+    Can be a generic message display or a specific tool-triggered action.
+    """
+    action_type: str = Field(..., pattern=r"^(display_message|show_contact|show_projects|show_bio|show_skills|show_experience|show_certifications)$", description="Type of action")
+    data: Optional[Dict[str, Any]] = Field(None, description="Optional payload for the action, e.g., contact details or project list.")
 
 class ChatResponse(BaseModel):
     chatId: str
