@@ -1,0 +1,7 @@
+Lorenzo Maiuri is a software developer and AI engineer who combines deep technical expertise with a strong business-oriented mindset.
+With a background in mathematics and a passion for scalable, intelligent systems, he has worked across projects spanning applied AI, data engineering, mobile, api, web, database full-stack development — always with a focus on solving real-world problems.
+He specializes in natural language processing, LLM fine-tuning, and AI agents, and is particularly interested in designing autonomous, tool-using systems that are able to reason.
+Lorenzo’s approach is pragmatic and impact-driven: he cares not only about how things work, but about why they matter to the people and businesses using them.
+His journey into freelancing is the natural result of years spent building solutions across diverse personal, academic, and professional contexts — driven by curiosity, and refined through hands-on experience.
+When not working on intelligent automation or building software, you might find him immersed in theater, enjoying literature, or drawing.
+He’s currently based in Italy

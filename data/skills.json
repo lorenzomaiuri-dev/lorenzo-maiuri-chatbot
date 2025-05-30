@@ -1,0 +1,20 @@
+{
+  "programming_languages": ["Python", "JavaScript/TypeScript", "C#", "Java", "PHP", "C", "C++", "Dart", "Node.js", "HTML", "CSS", "SQL", ".NET", "R"],
+  "ai": ["Transformers", "TensorFlow", "Keras", "PyTorch", "scikit-learn", "Hugging Face", "OpenAI", "LangChain", "LlamaIndex", "RAG (Retrieval-Augmented Generation)", "LLMs (Large Language Models)", "Chatbots", "Generative AI", "AI Agents", "Computer Vision", "Natural Language Processing (NLP)", "SmolAgent"],
+  "web_frameworks": ["Django", "Spring Boot", "ASP.NET Core", "React", "Angular", "Next.js", "Tailwind CSS", "Bootstrap", "Jquery"],
+  "mobile_frameworks": ["Flutter", "React Native", "Xamarin", "Maui"],
+  "api_development": ["RESTful APIs", "SOAP APIs", "GraphQL", "OpenAPI/Swagger", "gRPC", "WebSockets", "FastAPI", "Flask", "ASP.NET Core Web API", "Express.js"],
+  "cloud_platforms": ["AWS", "Azure", "Heroku", "Cloudflare", "DigitalOcean"],
+  "databases": ["MongoDB", "PostgreSQL", "Redis", "MySQL", "SQLite", "Firebase", "DynamoDB", "Oracle", "Sqlserver", "ChromaDB", "Neo4j", "Faiss"],
+  "data_science": ["Pandas", "NumPy", "Matplotlib", "Seaborn", "SciPy", "Statsmodels", "Jupyter", "Apache Spark", "PowerBi", "Qlik", "Apache Airflow"],
+  "devops": ["Docker", "Kubernetes", "Github Workflows", "Jenkins", "Terraform", "Ansible", "Prometheus", "Grafana", "Phoenix", "nginx", "Apache Tomcat", "IIS", "OpenTelemetry", "MlFlow"],
+  "security": ["OWASP", "SSL/TLS", "JWT", "OAuth2", "Identity & Access Management (IAM, RBAC)", "API security (rate-limiting, throttling)", "Http Security Headers", "Cross-Site Scripting (XSS)", "SQL Injection"],
+  "testing": ["Unit Testing", "Integration Testing", "End-to-End Testing", "Test Automation", "Regression Test", "Selenium", "Appium", "Playwright", "Jest", "PyTest", "Postman"],
+  "version_control": ["Git", "GitHub", "Azure DevOps", "SVN (Subversion)", "CVS (Concurrent Versions System)"],
+  "operating_systems": ["Linux (Ubuntu, Debian, CentOS, Gentoo)", "Windows", "macOS", "Android", "iOS"],
+  "project_management": ["ITIL", "Agile", "Scrum", "Kanban", "Jira", "Trello", "Confluence", "Notion", "Toggl"],  
+  "design_patterns": ["MVC (Model-View-Controller)", "MVVM (Model-View-ViewModel)", "Singleton", "Factory", "Observer", "Decorator", "Strategy", "Circuit Breaker", "Repository", "Dependency Injection", "Command Pattern", "Adapter Pattern", "Facade Pattern", "Builder Pattern", "Prototype Pattern", "SOLID Principles", "GOF (Gang of Four) Patterns"],
+  "architecture": ["Microservices", "Monolithic", "Serverless", "Event-Driven Architecture", "CQRS (Command Query Responsibility Segregation)", "Event Sourcing", "Domain-Driven Design (DDD)", "Service-Oriented Architecture (SOA)", "API Gateway", "Message Queues (RabbitMQ, Kafka, AWS Event Bridge)", "ETL (Extract, Transform, Load)", "Data Warehousing", "Data Lakes"],
+  "professional_traits": ["Problem Solving", "Communication", "Teamwork", "Adaptability", "Time Management", "Critical Thinking", "Creativity", "Leadership"],
+  "languages": ["English", "Italian"]
+}

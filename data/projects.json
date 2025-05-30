@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Migration to Apache Airflow for Workflow Orchestration",
+    "company": "B2B Company",
+    "description": "Led the migration from a custom middleware to Apache Airflow, resolving performance bottlenecks, optimizing workflows, and enhancing system reliability and scalability.",
+    "technologies": ["Apache Airflow", "Python", "Redis", "Workflow Orchestration", "Middleware", "ETL"]
+  },
+  {
+    "title": "B2B Portal Redesign & Functionality Integration",
+    "company": "B2B Company",
+    "description": "Led the redesign of a B2B portal's landing page, integrating essential functionalities like invoice and delivery notes viewing, robust analytics, and a headless CMS, significantly enhancing user experience and operational efficiency.",
+    "technologies": ["JavaScript", "C#", ".NET", "React", "API Integration", "UX Design", "Google Analytics", "Strapi (Headless CMS)", "Docker", "Nginx", "PostgreSQL"]
+  },
+  {
+    "title": "DanteGPT: Fine-tuned GPT-2 for Dantesque Text Generation",
+    "company": "Personal Project",
+    "description": "Developed and fine-tuned 'DanteGPT,' a GPT-2 model designed to generate text in the poetic style of Dante Alighieri’s Divina Commedia. This project, available on Hugging Face and Kaggle, emulates Dante's tercet structure, rhyme scheme (ABA BCB CDC), and thematic elements.",
+    "technologies": ["NLP", "Deep Learning", "GPT-2 (Fine-tuning)", "Python", "Hugging Face Transformers", "Kaggle", "Text Generation", "Poetic Style Transfer", "Italian Language Processing"]
+  },
+  {
+    "title": "Data Warehouse Modernization: Oracle to PostgreSQL Migration & Orchestration",
+    "company": "B2B Company",
+    "description": "Led the migration and modernization of a data warehouse from Oracle to PostgreSQL, including improved ETL orchestration, CI/CD pipelines, and infrastructure enhancements, achieving a 100% cost reduction and 20% performance boost.",
+    "technologies": ["PostgreSQL", "Oracle", "Python", "ETL", "Data Migration", "SQL", "CI/CD", "Software Infrastructure"]
+  },
+  {
+    "title": "AI-Powered Customer Support Chatbot",
+    "company": "Worldwide Audio Company",
+    "description": "Engineered an intelligent, end-to-end AI chatbot solution that provides instant, accurate answers from diverse company documentation, significantly boosting customer satisfaction and reducing support costs.",
+    "technologies": ["GPT-4o", "LlamaIndex", "ChromaDB", "FastAPI", "Python", "Redis", "Salesforce API", "WordPress PHP", "Docker", "AWS EC2", "Phoenix by Arize AI"]
+  },
+  {
+    "title": "AI-Powered Personal Data Detection for GDPR Compliance",
+    "company": "Pharmaceutical Company",
+    "description": "Developed and implemented a BERT-based NLP model to automatically detect personal data in order notes, achieving 85% increased accuracy and reducing manual review time by 90%, significantly strengthening GDPR compliance",
+    "technologies": ["Natural Language Processing (NLP)", "BERT", "Python", "Hugging Face Transformers"]
+  },
+  {
+    "title": "Gentleman Closet: AI-Powered Smart Wardrobe Assistant",
+    "company": "Personal Project",
+    "description": "Developed 'Gentleman Closet,' a modern and intelligent personal wardrobe management mobile application built with Flutter. It helps users organize clothes, plan outfits, and receive AI-based suggestions tailored to style, weather, and occasion, featuring an offline-first design and planned LLM integration.",
+    "technologies": ["Flutter", "Dart", "Mobile Development", "AI Integration (Gemini API)", "Local Database (Hive)", "State Management (Provider)", "UI/UX Design", "Offline-First Development"]
+  },
+  {
+    "title": "AI for Histopathologic Cancer Detection",
+    "company": "Personal Project",
+    "description": "Developed a deep learning CNN model for binary classification of metastatic tissue in histopathologic scans, enhancing potential for automated pre-screening in pathology.",
+    "technologies": ["Deep Learning", "CNN", "PyTorch", "Medical Imaging", "Hugging Face Transformers"]
+  },
+  {
+    "title": "AI for Italian Misogyny Detection",
+    "company": "Personal Project",
+    "description": "Fine-tuned BERT model for accurate detection of misogynistic content in Italian text, trained and evaluated on the AMI dataset.",
+    "technologies": ["NLP", "Hugging Face Transformers", "BERT", "Italian Language", "python"]
+  },
+  {
+    "title": "Logistics Cost Control Dashboard with Anomaly Detection",
+    "company": "B2B Company",
+    "description": "Developed a dashboard to process courier invoices, cross-reference with shipment data, and detect anomalies, providing actionable insights for logistics cost optimization and accurate billing.",
+    "technologies": ["Data Integration", "Dashboard Development", "Anomaly Detection", "Data Visualization", "Python", "Pandas", "PostgreSQL", "PowerBi"]
+  },
+  {
+    "title": "AI-Powered Prioritization System for B2B Platform",
+    "company": "B2B Company",
+    "description": "Integrated a machine learning algorithm into a B2B platform to automate and optimize the prioritization of tasks and customer requests, enhancing operational efficiency and processing times.",
+    "technologies": ["Machine Learning", "Data Science", "Python", "scikit-learn", ".NET", "C#", "jquery", "bootstrap"]
+  },
+  {
+    "title": "Platform Integrations for Veterinary Customer Journey & B2B",
+    "company": "Veterinary Company",
+    "description": "Led the integration of HubSpot and BigCommerce with company systems to automate processes, synchronize data, and enhance the B2B experience for veterinary clients.",
+    "technologies": ["HubSpot", "BigCommerce", "Python", "PostgreSQL"]
+  }
+]
