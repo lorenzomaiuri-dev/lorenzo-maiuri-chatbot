@@ -1,3 +1,6 @@
+[![License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
 # 🤖 LorenzoBot — Lorenzo Maiuri's Intelligent Chatbot
 
 This repository contains the backend for the AI assistant featured on [Lorenzo Maiuri's website](https://www.lorenzomaiuri.dev/). The chatbot is designed to provide visitors with accurate, up-to-date information about Lorenzo's background, skills, projects, and contact details, using advanced AI and modular software architecture.
@@ -103,11 +106,24 @@ All endpoints (except health) require an `Authorization: Bearer <API_KEY>` heade
 - **Extend agent logic:** Modify `src/core/agent_orchestrator.py` to add more agents or change routing logic.
 - **Frontend integration:** Use the `action` field in API responses to trigger custom UI behaviors.
 
+## 📬 Contact
+
+Interested in working together or want to know more?
+
+- Email: [maiurilorenzo@gmail.com](mailto:maiurilorenzo@gmail.com)
+- LinkedIn: [linkedin.com/in/maiurilorenzo](https://www.linkedin.com/in/maiurilorenzo/)
+- GitHub: [github.com/lorenzomaiuri-dev](https://github.com/lorenzomaiuri-dev)
+
+## 🙏 Acknowledgements
+
+Thanks to the open-source community and all contributors to the libraries and tools that power this project.
+
 ## 📄 License
 
 This project is licensed under the GNU Affero General Public License v3.0. See [LICENSE](LICENSE) for details.
 
-## 👤 About
-
-Developed and maintained by [Lorenzo Maiuri](https://www.lorenzomaiuri.dev/).  
-For questions or collaboration, please use the contact info provided by the chatbot or visit the website.
+<!-- LINKS & IMAGES -->
+[license-shield]: https://img.shields.io/badge/license-AGPL%20V3-blue
+[license-url]: https://opensource.org/license/agpl-v3
+[linkedin-shield]: https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&logoColor=white
+[linkedin-url]: https://www.linkedin.com/in/maiurilorenzo
