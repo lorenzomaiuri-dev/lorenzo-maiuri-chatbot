@@ -5,9 +5,9 @@ from llama_index.core.agent.workflow import AgentWorkflow, ReActAgent
 from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.core.tools import FunctionTool
 
-from core.config import Config
-from core.tools import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
-from utils.constants import SYSTEM_PROMPT
+from src.core.config import Config
+from src.core.tools import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
+from src.utils.constants import SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 config = Config()

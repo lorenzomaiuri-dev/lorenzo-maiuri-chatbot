@@ -7,11 +7,11 @@ from functools import lru_cache
 
 from llama_index.core.llms import ChatMessage, MessageRole
 
-from core.agent_orchestrator import get_main_agent_workflow
-from core.models import ActionData, Message
-from core.config import Config
-from core.database import Mongo
-from core.tools import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
+from src.core.agent_orchestrator import get_main_agent_workflow
+from src.core.models import ActionData, Message
+from src.core.config import Config
+from src.core.database import Mongo
+from src.core.tools import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
 
 logger = logging.getLogger(__name__)
 config = Config()

@@ -10,11 +10,11 @@ from phoenix.otel import register
 # Load environment variables
 load_dotenv()
 
-from api.endpoints import router as api_router
-from core.security import SecurityHeadersMiddleware
-from core.database import connect_to_mongo, close_mongo_connection, Mongo
-from core.config import Config
-from utils.logger import setup_logging
+from src.api.endpoints import router as api_router
+from src.core.security import SecurityHeadersMiddleware
+from src.core.database import connect_to_mongo, close_mongo_connection, Mongo
+from src.core.config import Config
+from src.utils.logger import setup_logging
 
 # Setup logging
 setup_logging()

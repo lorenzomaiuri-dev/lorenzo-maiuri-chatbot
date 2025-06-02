@@ -2,12 +2,12 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from datetime import datetime
 import logging
 
-from core.database import Mongo
-from core.models import ChatRequest, ChatResponse, ChatHistoryResponse, Message, ActionData
-from core.services import EnhancedChatbotService, get_chatbot_service
-from core.security import rate_limited_api_key, validate_api_key
-from core.database import get_mongo
-from core.config import Config
+from src.core.database import Mongo
+from src.core.models import ChatRequest, ChatResponse, ChatHistoryResponse, Message, ActionData
+from src.core.services import EnhancedChatbotService, get_chatbot_service
+from src.core.security import rate_limited_api_key, validate_api_key
+from src.core.database import get_mongo
+from src.core.config import Config
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -87,7 +87,7 @@ async def delete_chat_session(chat_id: str, mongo: Mongo = Depends(get_mongo), c
 @router.get("/health")
 async def health_check(mongo: Mongo = Depends(get_mongo)):
     """Enhanced health check."""
-    from core.database import mongodb_client_instance # Access global client
+    from src.core.database import mongodb_client_instance # Access global client
     mongo_status = "unhealthy"
     if mongodb_client_instance:
         try:

@@ -3,7 +3,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 import logging
 from fastapi import Request
 
-from core.config import Config
+from src.core.config import Config
 
 logger = logging.getLogger(__name__)
 config = Config()

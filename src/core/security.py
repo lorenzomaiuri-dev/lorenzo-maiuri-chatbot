@@ -7,7 +7,7 @@ import os
 import time
 import logging
 
-from core.config import Config
+from src.core.config import Config
 
 security = HTTPBearer(auto_error=False)
 logger = logging.getLogger(__name__)

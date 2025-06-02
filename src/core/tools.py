@@ -1,5 +1,5 @@
 import logging
-from utils.utils import _read_data_file
+from src.utils.utils import _read_data_file
 
 logger = logging.getLogger(__name__)
 

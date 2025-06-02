@@ -5,8 +5,8 @@ import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from asgi_lifespan import LifespanManager
 from fastapi import status
-from app import app
-from core.agent_orchestrator import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
+from src.app import app
+from src.core.agent_orchestrator import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
 
 # Load environment variables for tests
 load_dotenv()
