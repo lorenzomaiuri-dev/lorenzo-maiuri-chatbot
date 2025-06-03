@@ -110,7 +110,7 @@ All endpoints (except health) require an `Authorization: Bearer <API_KEY>` heade
 
 Interested in working together or want to know more?
 
-- Email: [maiurilorenzo@gmail.com](mailto:maiurilorenzo@gmail.com)
+- Email: [contact@lorenzomaiuri.dev](mailto:contact@lorenzomaiuri.dev)
 - LinkedIn: [linkedin.com/in/maiurilorenzo](https://www.linkedin.com/in/maiurilorenzo/)
 - GitHub: [github.com/lorenzomaiuri-dev](https://github.com/lorenzomaiuri-dev)
 
