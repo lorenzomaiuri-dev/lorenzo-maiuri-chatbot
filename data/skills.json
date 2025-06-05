@@ -4,7 +4,7 @@
   "web_frameworks": ["Django", "Spring Boot", "ASP.NET Core", "React", "Angular", "Next.js", "Tailwind CSS", "Bootstrap", "Jquery"],
   "mobile_frameworks": ["Flutter", "React Native", "Xamarin", "Maui"],
   "api_development": ["RESTful APIs", "SOAP APIs", "GraphQL", "OpenAPI/Swagger", "gRPC", "WebSockets", "FastAPI", "Flask", "ASP.NET Core Web API", "Express.js"],
-  "cloud_platforms": ["AWS", "Azure", "Heroku", "Cloudflare", "DigitalOcean"],
+  "cloud_platforms": ["AWS", "Azure", "GCP", "Heroku", "Vercel", "Cloudflare", "DigitalOcean"],
   "databases": ["MongoDB", "PostgreSQL", "Redis", "MySQL", "SQLite", "Firebase", "DynamoDB", "Oracle", "Sqlserver", "ChromaDB", "Neo4j", "Faiss"],
   "data_science": ["Pandas", "NumPy", "Matplotlib", "Seaborn", "SciPy", "Statsmodels", "Jupyter", "Apache Spark", "PowerBi", "Qlik", "Apache Airflow"],
   "devops": ["Docker", "Kubernetes", "Github Workflows", "Jenkins", "Terraform", "Ansible", "Prometheus", "Grafana", "Phoenix", "nginx", "Apache Tomcat", "IIS", "OpenTelemetry", "MlFlow"],
