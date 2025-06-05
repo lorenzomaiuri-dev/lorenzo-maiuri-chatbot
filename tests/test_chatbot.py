@@ -19,7 +19,7 @@ if not TEST_API_KEY:
 async def client():    
     async with LifespanManager(app) as manager:        
         transport = ASGITransport(app=manager.app)
-        async with AsyncClient(transport=transport, base_url="http://127.0.0.1:8080") as ac:
+        async with AsyncClient(transport=transport, base_url=("http://127.0.0.1" + os.getenv('PORT', '8000'))) as ac:
             yield ac
 
 
