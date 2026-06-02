@@ -111,6 +111,8 @@ resource "google_service_account_iam_member" "wif_binding_website" {
   service_account_id = module.wif.deploy_service_account_name
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${module.wif.pool_name}/attribute.repository/${var.github_org}/lorenzo-maiuri-website"
+
+  depends_on = [module.wif]
 }
 
 # Allow deploy SA (GitHub Actions) to impersonate the Cloud Run SA

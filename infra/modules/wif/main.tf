@@ -39,6 +39,8 @@ resource "google_service_account_iam_member" "wif_binding" {
   service_account_id = google_service_account.deploy.name
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${var.github_org}/${var.github_repo}"
+
+  depends_on = [google_project_iam_member.deploy_roles]
 }
 
 # IAM roles for the deploy SA
@@ -50,6 +52,7 @@ resource "google_project_iam_member" "deploy_roles" {
     "roles/iam.serviceAccountUser",          # use Cloud Run SA
     "roles/editor",                          # broad access for Terraform
     "roles/resourcemanager.projectIamAdmin", # manage project IAM (for WIF setup)
+    "roles/iam.serviceAccountAdmin",         # manage IAM
   ])
 
   project = var.project_id
