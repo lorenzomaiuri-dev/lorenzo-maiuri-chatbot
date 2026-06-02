@@ -1,27 +1,30 @@
-# Dockerfile per il backend Python
-FROM python:3.11-slim
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+ENV UV_COMPILE_BYTECODE=1
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y gcc \
- && pip install --no-cache-dir --upgrade -r requirements.txt \
- && apt-get purge -y --auto-remove gcc \
- && rm -rf /var/lib/apt/lists/*
+ENV UV_LINK_MODE=copy
 
-# Copy application code
+COPY pyproject.toml uv.lock ./
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev --no-group otel
+
+FROM python:3.12-slim-bookworm
+
+WORKDIR /app
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+COPY --from=builder /app/.venv /app/.venv
+
 COPY . .
 
-# Create non-root user
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser
 
-# Expose port
-EXPOSE 8000
+EXPOSE 8080
 
-# Run the application
-CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers"]

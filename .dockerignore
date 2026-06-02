@@ -1,10 +1,38 @@
+# Python artifacts
 __pycache__/
-.pytest_cache/
 *.pyc
 *.pyo
 *.pyd
-.env
-.git
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# Git
+.git/
 .gitignore
-Dockerfile
+.github/
+
+# Environment & secrets
+.env
+.env.example
+
+# Dev tooling
+.pre-commit-config.yaml
+.python-version
+
+# Infrastructure (Terraform)
+infra/
+
+# Dev-only scripts
+scripts/
+
+# Tests
+tests/
+
+# Docs & misc
 README.md
+backend-overview.md
+LICENSE
+Dockerfile
+.dockerignore
