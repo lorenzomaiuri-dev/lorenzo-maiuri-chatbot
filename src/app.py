@@ -1,60 +1,51 @@
+import logging
+import os
+from contextlib import asynccontextmanager
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-import os
-import logging
-from dotenv import load_dotenv
-from openinference.instrumentation.llama_index import LlamaIndexInstrumentor
-from phoenix.otel import register
 
-# Load environment variables
 load_dotenv()
 
-from src.api.endpoints import router as api_router
-from src.core.security import SecurityHeadersMiddleware
-from src.core.database import connect_to_mongo, close_mongo_connection, Mongo
-from src.core.config import Config
-from src.utils.logger import setup_logging
+from src.api.endpoints import v1_router, v2_router  # noqa: E402
+from src.core.config import Config  # noqa: E402
+from src.core.database import close_firestore, init_firestore  # noqa: E402
+from src.core.security import SecurityHeadersMiddleware  # noqa: E402
+from src.utils.logger import setup_logging  # noqa: E402
 
-# Setup logging
 setup_logging()
 logger = logging.getLogger(__name__)
-
-# Load configuration
 config = Config()
 
-# MongoDB client instance (will be set during lifespan)
-mongodb_client_instance = None
 
-
-# Register OpenTelemetry instrumentation for LlamaIndex
 try:
     if not os.getenv("PHOENIX_CLIENT_HEADERS"):
-        raise ValueError("PHOENIX_CLIENT_HEADERS environment variable is required")
+        raise ValueError("PHOENIX_CLIENT_HEADERS not set")
+    from openinference.instrumentation.llama_index import LlamaIndexInstrumentor
+    from phoenix.otel import register
+
     tracer_provider = register(project_name="lorenzobot")
     LlamaIndexInstrumentor().instrument(tracer_provider=tracer_provider)
-    logger.info("Phoenix Arize LlamaIndex instrumentation registered successfully.")
+    logger.info("Phoenix OpenTelemetry instrumentation registered")
 except Exception as e:
-    logger.error(f"Failed to register Phoenix Arize instrumentation: {e}", exc_info=True)
+    logger.warning(f"Phoenix instrumentation skipped: {e}")
 
-# Lifespan context manager
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global mongodb_client_instance
-    mongodb_client_instance = await connect_to_mongo()
-    app.state.mongo = Mongo(mongodb_client_instance.chatbot_db)
+    app.state.db = await init_firestore()
     yield
-    await close_mongo_connection(mongodb_client_instance)
+    await close_firestore()
 
-# Initialize FastAPI with lifespan
+
 app = FastAPI(
     title="Lorenzo Maiuri Chatbot API",
     version="2.0.0",
-    description="Enhanced chatbot API using LlamaIndex framework",
-    lifespan=lifespan
+    description="AI chatbot backend for lorenzomaiuri.dev",
+    lifespan=lifespan,
 )
 
-# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.allowed_origins,
@@ -62,19 +53,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["*"],
 )
-
-# Security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
-# Include API router
-app.include_router(api_router, prefix="/api/v1")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=config.port,
-        reload=config.env == "development",
-        log_level="info"
-    )
+app.include_router(v1_router, prefix="/api/v1", tags=["v1 (deprecated)"])
+app.include_router(v2_router, prefix="/api/v2", tags=["v2"])

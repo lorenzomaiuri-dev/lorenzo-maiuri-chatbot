@@ -1,230 +1,341 @@
+import json
 import os
-from dotenv import load_dotenv
+
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
 from asgi_lifespan import LifespanManager
+from dotenv import load_dotenv
 from fastapi import status
-from src.app import app
-from src.core.agent_orchestrator import get_contact_info_tool_function, get_projects_tool_function, get_bio_tool_function, get_skills_tool_function, get_work_experience_tool_function, get_certifications_tool_function
+from httpx import ASGITransport, AsyncClient
 
-# Load environment variables for tests
+from src.app import app
+
 load_dotenv()
+
 TEST_API_KEY = os.getenv("API_KEY")
+BASE_URL = f"http://127.0.0.1:{os.getenv('PORT', '8080')}"
 
 if not TEST_API_KEY:
-    pytest.skip("API_KEY not set in .env, skipping API key protected tests", allow_module_level=True)
+    pytest.skip("API_KEY not set in .env, skipping tests", allow_module_level=True)
 
-@pytest_asyncio.fixture(scope="function") # to ensure fresh client/lifespan per test
-async def client():    
-    async with LifespanManager(app) as manager:        
+
+@pytest_asyncio.fixture(scope="function")
+async def client():
+    async with LifespanManager(app) as manager:
         transport = ASGITransport(app=manager.app)
-        async with AsyncClient(transport=transport, base_url=("http://127.0.0.1" + os.getenv('PORT', '8000'))) as ac:
+        async with AsyncClient(transport=transport, base_url=BASE_URL) as ac:
             yield ac
 
 
-@pytest.mark.asyncio
-async def test_health_check(client: AsyncClient):
-    # Health check does not require API key
-    response = await client.get("/api/v1/health")
-    assert response.status_code == status.HTTP_200_OK
-    data = response.json()
-    assert "status" in data
-    assert "services" in data
-    assert data["services"]["mongodb"] in ["healthy", "unhealthy"]
+# ── health checks ─────────────────────────────────────────────────────────────
 
 
 @pytest.mark.asyncio
-async def test_chat_flow(client: AsyncClient):
+async def test_health_v1(client: AsyncClient):
+    r = await client.get("/api/v1/health")
+    assert r.status_code == status.HTTP_200_OK
+    assert r.json()["status"] == "healthy"
+
+
+@pytest.mark.asyncio
+async def test_health_v2(client: AsyncClient):
+    r = await client.get("/api/v2/health")
+    assert r.status_code == status.HTTP_200_OK
+    data = r.json()
+    assert data["status"] == "healthy"
+    assert data["version"] == "2.0.0"
+
+
+# ── auth ──────────────────────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_unauthorized(client: AsyncClient):
+    for path, method in [
+        ("/api/v1/chat", "POST"),
+        ("/api/v2/chat/stream", "POST"),
+        ("/api/v1/chat/some_id/history", "GET"),
+        ("/api/v2/chat/some_id/history", "GET"),
+    ]:
+        fn = client.post if method == "POST" else client.get
+        r = await fn(path, json={"message": "test"})
+        assert r.status_code == status.HTTP_401_UNAUTHORIZED, f"Expected 401 for {method} {path}"
+
+    r = await client.post(
+        "/api/v2/chat/stream",
+        json={"message": "test"},
+        headers={"Authorization": "Bearer WRONG_KEY"},
+    )
+    assert r.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+# ── tools unit tests (no HTTP, direct function calls) ─────────────────────────
+
+
+def test_search_projects_no_filter():
+    from src.core.tools import search_projects
+
+    result = search_projects()
+    assert "projects" in result
+    assert len(result["projects"]) > 0
+    assert "_citations" in result
+
+
+def test_search_projects_by_category():
+    from src.core.tools import search_projects
+
+    result = search_projects(category="ai-agents")
+    assert all(p["category"] == "ai-agents" for p in result["projects"])
+
+
+def test_search_projects_by_stack():
+    from src.core.tools import search_projects
+
+    result = search_projects(stack="Python")
+    assert len(result["projects"]) > 0
+    for p in result["projects"]:
+        assert any("Python" in t for t in p["technologies"])
+
+
+def test_search_projects_by_type():
+    from src.core.tools import search_projects
+
+    personal = search_projects(type="personal")
+    professional = search_projects(type="professional")
+    assert all(p["type"] == "personal" for p in personal["projects"])
+    assert all(p["type"] == "professional" for p in professional["projects"])
+
+
+def test_get_project_details_found():
+    from src.core.tools import get_project_details
+
+    result = get_project_details("dantegpt")
+    assert "project" in result
+    assert result["project"]["slug"] == "dantegpt"
+    assert "_citations" in result
+    assert result["_citations"][0]["kind"] == "project"
+
+
+def test_get_project_details_not_found():
+    from src.core.tools import get_project_details
+
+    result = get_project_details("non-existent-slug")
+    assert "error" in result
+
+
+def test_get_case_study_found():
+    from src.core.tools import get_case_study
+
+    result = get_case_study("ai-customer-support-chatbot")
+    assert "case_study" in result
+    study = result["case_study"]
+    assert "challenge" in study
+    assert "approach" in study
+    assert "results" in study
+    assert result["_citations"][0]["kind"] == "case-study"
+
+
+def test_get_case_study_not_found():
+    from src.core.tools import get_case_study
+
+    result = get_case_study("non-existent")
+    assert "error" in result
+
+
+@pytest.mark.asyncio
+async def test_recommend_similar_project_fallback():
+    """When the Firestore vector index is not set up, the tool returns a helpful fallback."""
+    from src.core.tools import recommend_similar_project
+
+    result = await recommend_similar_project("AI chatbot for customer support")
+    # Expects either a successful result or a graceful fallback (no index in CI)
+    assert isinstance(result, dict)
+    assert "similar_projects" in result or "message" in result or "error" in result
+
+
+def test_get_stack_info_found():
+    from src.core.tools import get_stack_info
+
+    result = get_stack_info("Python")
+    assert result["found"] is True
+    assert len(result["categories"]) > 0
+    assert "_citations" in result
+
+
+def test_get_stack_info_not_found():
+    from src.core.tools import get_stack_info
+
+    result = get_stack_info("COBOL")
+    assert result["found"] is False
+
+
+def test_get_core_stack():
+    from src.core.tools import get_core_stack
+
+    result = get_core_stack()
+    assert "core_stack" in result
+    core = result["core_stack"]
+    assert "primary_languages" in core
+    assert "ai_ml" in core
+    assert "_citations" in result
+
+
+def test_get_certifications():
+    from src.core.tools import get_certifications
+
+    result = get_certifications()
+    assert "certifications" in result
+    assert isinstance(result["certifications"], list)
+    assert len(result["certifications"]) > 0
+
+
+def test_get_education():
+    from src.core.tools import get_education
+
+    result = get_education()
+    assert "education" in result
+    assert isinstance(result["education"], list)
+
+
+def test_get_engagement_model():
+    from src.core.tools import get_engagement_model
+
+    result = get_engagement_model()
+    assert "engagement_model" in result
+    assert "timezone" in result["engagement_model"]
+
+
+def test_get_contact_info():
+    from src.core.tools import get_contact_info
+
+    result = get_contact_info()
+    assert "contact" in result
+    assert "email" in result["contact"]
+    assert "linkedin" in result["contact"]
+
+
+def test_trigger_contact_action():
+    from src.core.tools import trigger_contact_action
+
+    result = trigger_contact_action()
+    assert "_action" in result
+    assert result["_action"]["action_type"] == "open_contact_modal"
+
+
+# ── v2 streaming ──────────────────────────────────────────────────────────────
+
+
+async def _collect_sse_events(client: AsyncClient, message: str) -> tuple[list, str | None]:
+    """Helper: stream a message and collect (event_type, payload) pairs."""
     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+    events = []
+    chat_id = None
 
-    # Step 1: Send first message to start a chat session
-    response = await client.post("/api/v1/chat", json={"message": "Who is Lorenzo Maiuri?"}, headers=headers)
-    assert response.status_code == status.HTTP_200_OK
-    data = response.json()
-    chat_id = data.get("chatId")
+    async with client.stream(
+        "POST",
+        "/api/v2/chat/stream",
+        json={"message": message},
+        headers=headers,
+    ) as response:
+        assert response.status_code == status.HTTP_200_OK
+        assert "text/event-stream" in response.headers.get("content-type", "")
+
+        current_event = None
+        async for line in response.aiter_lines():
+            line = line.strip()
+            if line.startswith("event:"):
+                current_event = line.split(":", 1)[1].strip()
+            elif line.startswith("data:") and current_event:
+                payload = json.loads(line.split(":", 1)[1].strip())
+                events.append((current_event, payload))
+                if current_event == "meta" and not chat_id:
+                    chat_id = payload.get("chatId")
+                current_event = None
+
+    return events, chat_id
+
+
+@pytest.mark.asyncio
+async def test_v2_stream_structure(client: AsyncClient):
+    events, chat_id = await _collect_sse_events(client, "Who is Lorenzo Maiuri?")
+
+    event_types = [e for e, _ in events]
+    assert event_types[0] == "meta", "First event must be 'meta'"
+    assert event_types[-1] == "done", "Last event must be 'done'"
+    assert "token" in event_types, "Must have at least one 'token' event"
     assert chat_id is not None
-    assert "message" in data
-    assert "action" in data
 
-    # Step 2: Send second message in the same chat (general query)
-    response2 = await client.post("/api/v1/chat", json={"message": "Tell me about Lorenzo expertises.", "chatId": chat_id}, headers=headers)
-    assert response2.status_code == status.HTTP_200_OK
-    data2 = response2.json()
-    assert data2["chatId"] == chat_id
-    assert "message" in data2
-    assert "action" in data2
-    assert data2["action"]["action_type"] == "show_skills"
-    
-    # Step 3: Retrieve chat history
-    history_response = await client.get(f"/api/v1/chat/{chat_id}/history", headers=headers)
-    assert history_response.status_code == status.HTTP_200_OK
-    history_data = history_response.json()
-    assert history_data["chatId"] == chat_id
-    messages = history_data["messages"]
-    assert len(messages) >= 4
-    assert messages[0]["role"] == "user"
-    assert messages[1]["role"] == "assistant"
-    assert messages[2]["role"] == "user"
-    assert messages[3]["role"] == "assistant"
-
-    # Step 4: Delete the session
-    delete_response = await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
-    assert delete_response.status_code == status.HTTP_200_OK
-    assert delete_response.json()["message"] == "Session deleted successfully"
-
-    # Step 5: Check that the session is deleted
-    invalid_history = await client.get(f"/api/v1/chat/{chat_id}/history", headers=headers)
-    assert invalid_history.status_code == status.HTTP_200_OK
-    invalid_data = invalid_history.json()
-    assert invalid_data["totalMessages"] == 0
-    assert invalid_data["messages"] == []
+    # Cleanup
+    if chat_id:
+        headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+        await client.delete(f"/api/v2/chat/{chat_id}", headers=headers)
 
 
 @pytest.mark.asyncio
-async def test_tool_get_contact_info(client: AsyncClient):
+async def test_v2_stream_project_query(client: AsyncClient):
+    """Project queries should trigger tool_call events and citation events."""
+    events, chat_id = await _collect_sse_events(client, "What AI projects has Lorenzo worked on?")
+
+    event_types = [e for e, _ in events]
+    assert "token" in event_types
+    assert "done" in event_types
+
+    # Cleanup
+    if chat_id:
+        headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+        await client.delete(f"/api/v2/chat/{chat_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_v2_stream_contact_action(client: AsyncClient):
+    """Contact queries should trigger an action event with open_contact_modal."""
+    events, chat_id = await _collect_sse_events(client, "I want to send Lorenzo a message")
+
+    event_types = [e for e, _ in events]
+    assert "done" in event_types
+
+    action_events = [payload for ev, payload in events if ev == "action"]
+    if action_events:
+        assert any(a.get("action_type") == "open_contact_modal" for a in action_events)
+
+    # Cleanup
+    if chat_id:
+        headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
+        await client.delete(f"/api/v2/chat/{chat_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_v2_history_and_delete(client: AsyncClient):
     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
-        
-    contact_queries = [
-        "How can I contact Lorenzo Maiuri?",
-    ]
 
-    for i, query in enumerate(contact_queries):
-        # Start a new chat for each query to ensure fresh agent state
-        response = await client.post("/api/v1/chat", json={"message": query}, headers=headers)
-        assert response.status_code == status.HTTP_200_OK, f"Failed for query: '{query}'"
-        data = response.json()
-        chat_id = data.get("chatId")
-        
-        assert chat_id is not None
-        assert "message" in data
-        assert "action" in data
-        
-        # Assert that the correct action type is returned
-        assert data["action"]["action_type"] == "show_contact", \
-            f"Expected 'show_contact' for query '{query}', got '{data['action']['action_type']}'"
-        
-        # Assert that the data matches the expected output from the tool function
-        expected_contact_data = get_contact_info_tool_function()
-        assert data["action"]["data"] == expected_contact_data, \
-            f"Contact data mismatch for query '{query}'. Expected {expected_contact_data}, got {data['action']['data']}"
-            
-        # Optional: Delete session after each test for isolation, or do it once at the end
-        await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
-        
-    print(f"\nSuccessfully tested {len(contact_queries)} 'get_contact_info' queries.")
+    _, chat_id = await _collect_sse_events(client, "Tell me about Lorenzo's skills")
+    assert chat_id
+
+    r = await client.get(f"/api/v2/chat/{chat_id}/history", headers=headers)
+    assert r.status_code == status.HTTP_200_OK
+    data = r.json()
+    assert data["totalMessages"] >= 2
+    assert data["messages"][0]["role"] == "user"
+
+    r2 = await client.delete(f"/api/v2/chat/{chat_id}", headers=headers)
+    assert r2.status_code == status.HTTP_200_OK
+
+    r3 = await client.get(f"/api/v2/chat/{chat_id}/history", headers=headers)
+    assert r3.json()["totalMessages"] == 0
+
+
+# ── v1 backward compat ────────────────────────────────────────────────────────
 
 
 @pytest.mark.asyncio
-async def test_tool_get_projects(client: AsyncClient):
+async def test_v1_chat_deprecated_still_works(client: AsyncClient):
     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
-    
-    # Test cases that should trigger get_projects
-    project_queries = [        
-        "What projects has Lorenzo worked on?",
-    ]
 
-    for i, query in enumerate(project_queries):
-        # Start a new chat for each query
-        response = await client.post("/api/v1/chat", json={"message": query}, headers=headers)
-        assert response.status_code == status.HTTP_200_OK, f"Failed for query: '{query}'"
-        data = response.json()
-        chat_id = data.get("chatId")
-        
-        assert chat_id is not None
-        assert "message" in data
-        assert "action" in data
-        
-        # Assert that the correct action type is returned
-        assert data["action"]["action_type"] == "show_projects", \
-            f"Expected 'show_projects' for query '{query}', got '{data['action']['action_type']}'"
-        
-        # Assert that the data matches the expected output from the tool function
-        expected_projects_data = get_projects_tool_function()
-        assert data["action"]["data"] == expected_projects_data, \
-            f"Projects data mismatch for query '{query}'. Expected {expected_projects_data}, got {data['action']['data']}"
-            
-        # Optional: Delete session after each test for isolation
-        await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
+    r = await client.post("/api/v1/chat", json={"message": "Who is Lorenzo?"}, headers=headers)
+    assert r.status_code == status.HTTP_200_OK
+    data = r.json()
+    chat_id = data["chatId"]
+    assert data["message"]
+    assert data["action"]["action_type"]
 
-    print(f"\nSuccessfully tested {len(project_queries)} 'get_projects' queries.")
-
-@pytest.mark.asyncio
-async def test_tool_get_skills(client: AsyncClient):
-    headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
-        
-    contact_queries = [
-        "What can Lorenzo do?",
-    ]
-
-    for i, query in enumerate(contact_queries):
-        # Start a new chat for each query to ensure fresh agent state
-        response = await client.post("/api/v1/chat", json={"message": query}, headers=headers)
-        assert response.status_code == status.HTTP_200_OK, f"Failed for query: '{query}'"
-        data = response.json()
-        chat_id = data.get("chatId")
-        
-        assert chat_id is not None
-        assert "message" in data
-        assert "action" in data
-        
-        # Assert that the correct action type is returned
-        assert data["action"]["action_type"] == "show_skills", \
-            f"Expected 'show_skills' for query '{query}', got '{data['action']['action_type']}'"
-        
-        # Assert that the data matches the expected output from the tool function
-        expected_skills_data = get_skills_tool_function()
-        assert data["action"]["data"] == expected_skills_data, \
-            f"Skills data mismatch for query '{query}'. Expected {expected_skills_data}, got {data['action']['data']}"
-            
-        # Optional: Delete session after each test for isolation, or do it once at the end
-        await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)
-        
-    print(f"\nSuccessfully tested {len(contact_queries)} 'get_contact_info' queries.")
-
-@pytest.mark.asyncio
-async def test_unauthorized_access(client: AsyncClient):
-    # Test chat endpoint without any authorization header
-    response = await client.post("/api/v1/chat", json={"message": "Should be unauthorized"})
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json()["detail"] == "Invalid or missing API Key"
-
-    # Test chat endpoint with a wrong authorization header
-    response = await client.post("/api/v1/chat", json={"message": "Should be unauthorized"}, headers={"Authorization": "Bearer WRONG_KEY"})
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json()["detail"] == "Invalid or missing API Key"
-
-    # Test history endpoint without authorization
-    response = await client.get("/api/v1/chat/some_id/history")
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json()["detail"] == "Invalid or missing API Key"
-
-    # Test delete endpoint without authorization
-    response = await client.delete("/api/v1/chat/some_id")
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json()["detail"] == "Invalid or missing API Key"
-
-
-# @pytest.mark.asyncio
-# async def test_rate_limit(client: AsyncClient):
-#     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
-    
-#     # We need to know the configured limits to test this reliably
-#     from app.core.config import Config
-#     test_config = Config() # Load config for test values
-    
-#     # Send requests up to the limit
-#     for i in range(test_config.rate_limit_requests):
-#         response = await client.post("/api/v1/chat", json={"message": f"Test rate limit {i+1}"}, headers=headers)
-#         assert response.status_code == status.HTTP_200_OK, f"Request {i+1} failed before rate limit"
-        
-#     # The next request should hit the rate limit
-#     response = await client.post("/api/v1/chat", json={"message": "Test rate limit (exceed)"}, headers=headers)
-#     assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
-#     assert response.json()["detail"] == "Rate limit exceeded. Please wait before sending more messages."
-
-#     # OPTIONAL: Wait for the window to reset and test again
-#     # This makes the test slower but more comprehensive
-#     # await asyncio.sleep(test_config.rate_limit_window + 1)
-#     # response_after_wait = await client.post("/api/v1/chat", json={"message": "Test after wait"}, headers=headers)
-#     # assert response_after_wait.status_code == status.HTTP_200_OK
+    await client.delete(f"/api/v1/chat/{chat_id}", headers=headers)

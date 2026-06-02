@@ -1,45 +1,31 @@
-from pymongo import AsyncMongoClient
-from pymongo.asynchronous.database import AsyncDatabase
 import logging
+from typing import Optional
+
 from fastapi import Request
+from google.cloud.firestore import AsyncClient
 
 from src.core.config import Config
 
 logger = logging.getLogger(__name__)
 config = Config()
 
-# Global client to be managed by lifespan
-mongodb_client_instance: AsyncMongoClient
+_firestore_client: Optional[AsyncClient] = None
 
-async def connect_to_mongo():
-    """Connects to MongoDB and returns the client."""
-    global mongodb_client_instance
 
-    try:
-        mongodb_client_instance = AsyncMongoClient(config.mongodb_url)
-        await mongodb_client_instance.admin.command("ping")
-        logger.info("MongoDB connection established")
+async def init_firestore() -> AsyncClient:
+    global _firestore_client
+    _firestore_client = AsyncClient(project=config.gcp_project_id or None)
+    logger.info("Firestore client initialized")
+    return _firestore_client
 
-        # Ensure index on chatId
-        await mongodb_client_instance.chatbot_db.sessions.create_index("chatId", unique=True)
-        logger.info("MongoDB index on chatId ensured.")
 
-        return mongodb_client_instance
-    
-    except Exception as e:
-        logger.error(f"Failed to connect to MongoDB: {e}")
-        raise
+async def close_firestore() -> None:
+    global _firestore_client
+    if _firestore_client:
+        _firestore_client.close()
+        _firestore_client = None
+        logger.info("Firestore client closed")
 
-async def close_mongo_connection(client: AsyncMongoClient):
-    """Closes the MongoDB connection."""
-    if client:
-        await client.close()
-        logger.info("MongoDB connection closed")
 
-class Mongo:
-    def __init__(self, db: AsyncDatabase):
-        self.sessions = db.sessions
-    
-def get_mongo(request: Request) -> Mongo:
-    """FastAPI dependency to inject Mongo instance."""
-    return request.app.state.mongo
+def get_firestore_db(request: Request) -> AsyncClient:
+    return request.app.state.db
