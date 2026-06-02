@@ -186,3 +186,14 @@ idea/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+infra/terraform.tfvars
+infra/.terraform.lock.hcl
+
+# Coverage
+htmlcov/
