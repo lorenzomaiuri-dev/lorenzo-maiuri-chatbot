@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Python dependencies (uv/pyproject.toml & uv.lock)
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      llama-index:
+        patterns: ["llama-index*"]
+      google-cloud:
+        patterns: ["google-cloud-*"]
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+
+  # Terraform providers
+  - package-ecosystem: terraform
+    directory: /infra
+    schedule:
+      interval: weekly
+      day: monday
+      

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    name: Pre-commit checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: uv sync --frozen --group dev
+      - run: uv run pre-commit run --all-files
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: [pre-commit]
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      PHOENIX_CLIENT_HEADERS: ${{ secrets.PHOENIX_CLIENT_HEADERS }}
+      CALCOM_USERNAME: ${{ vars.CALCOM_USERNAME }}
+      CALCOM_EVENT_SLUG: ${{ vars.CALCOM_EVENT_SLUG }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.CLOUDRUN_SERVICE_ACCOUNT }}
+      - run: uv sync --frozen --group dev
+      - run: uv run pytest --cov=src --cov-report=xml --cov-report=term-missing -v
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.xml
