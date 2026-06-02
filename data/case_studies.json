@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "ai-customer-support-chatbot",
+    "title": "AI-Powered Customer Support Chatbot",
+    "challenge": "A worldwide audio company needed to handle thousands of daily customer support tickets about product manuals, warranties, and troubleshooting. Response times averaged 48 hours, and support costs were rising. The documentation was scattered across PDFs, WordPress pages, and Salesforce records in multiple languages.",
+    "approach": "Built an end-to-end RAG chatbot using LlamaIndex and GPT-4o, with ChromaDB as the vector store for semantic search over all documentation. FastAPI served the backend, integrated directly into the WordPress customer portal via a custom widget.",
+    "decisions": [
+      "Chose LlamaIndex over LangChain for its native document parsing pipeline and flexible retrieval strategies",
+      "Used ChromaDB over Pinecone to keep costs zero during low-traffic periods",
+      "Integrated Phoenix by Arize for real-time observability of retrieval quality and LLM traces",
+      "Deployed on AWS EC2 with Docker for predictable costs vs serverless"
+    ],
+    "results": "Reduced average response time from 48h to under 30 seconds. Deflected 60%+ of tier-1 support tickets. Customer satisfaction score increased significantly. Support team could focus on complex cases.",
+    "retrospective": "The biggest challenge was ingestion quality — raw PDFs had inconsistent formatting. A custom pre-processing pipeline with OCR and section detection was key. If I were to redo this, I'd invest earlier in structured data extraction rather than raw text chunking.",
+    "stack": ["Python", "FastAPI", "LlamaIndex", "ChromaDB", "GPT-4o", "Redis", "Docker", "AWS EC2", "Salesforce API", "Phoenix by Arize AI"]
+  },
+  {
+    "slug": "data-warehouse-modernization",
+    "title": "Data Warehouse Modernization: Oracle to PostgreSQL",
+    "challenge": "A B2B pharmaceutical company was paying significant Oracle licensing costs for a data warehouse used primarily for internal reporting. The ETL pipelines were fragile custom scripts with no observability, and query performance was degrading as data volume grew.",
+    "approach": "Migrated the schema and data to PostgreSQL with minimal downtime using a parallel-run strategy. Replaced custom ETL scripts with Apache Airflow DAGs for orchestration. Added CI/CD pipelines for schema migrations and introduced Grafana for query performance monitoring.",
+    "decisions": [
+      "Parallel-run migration strategy: ran Oracle and PostgreSQL in sync for 4 weeks before cutover",
+      "Apache Airflow over custom cron jobs for retry logic, observability, and dependency management",
+      "PostgreSQL partitioning for the largest fact tables to maintain query performance",
+      "Automated regression testing suite comparing query results between old and new systems"
+    ],
+    "results": "100% reduction in licensing costs. 20% improvement in average query performance. ETL reliability went from ~85% to 99.5% success rate. Full migration completed with zero data loss.",
+    "retrospective": "The hardest part was Oracle-specific SQL syntax that had no direct PostgreSQL equivalent. Building a comprehensive test suite before starting was the best decision — it gave confidence at every migration step.",
+    "stack": ["PostgreSQL", "Oracle", "Python", "Apache Airflow", "Docker", "CI/CD", "Grafana", "SQL"]
+  },
+  {
+    "slug": "gentleman-closet",
+    "title": "Gentleman Closet: AI-Powered Smart Wardrobe Assistant",
+    "challenge": "Personal project exploring offline-first mobile development with AI integration. The goal was to build a wardrobe management app that works without internet, provides intelligent outfit suggestions based on weather and occasion, and lays the groundwork for future LLM-based style advice.",
+    "approach": "Built with Flutter for cross-platform mobile (iOS/Android). Used Hive for local-first storage with planned sync. Integrated Gemini API for outfit suggestions. Provider for state management.",
+    "decisions": [
+      "Flutter over React Native for better performance and native feel on both platforms",
+      "Hive over SQLite for the offline-first key-value store simplicity",
+      "Gemini API for suggestions over a local model — acceptable trade-off for MVP phase",
+      "Provider over Riverpod for simplicity at current project scale"
+    ],
+    "results": "Working MVP with wardrobe management, outfit planning, and AI suggestions. Active development ongoing.",
+    "retrospective": "Still in active development. The offline-first architecture decision was correct — users expect instant response for wardrobe browsing. The LLM integration is the most interesting part to expand.",
+    "stack": ["Flutter", "Dart", "Hive", "Gemini API", "Provider", "iOS", "Android"]
+  }
+]

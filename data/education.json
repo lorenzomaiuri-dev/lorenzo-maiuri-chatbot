@@ -1,0 +1,18 @@
+[
+  {
+    "degree": "BSc in Mathematics and Computer Science",
+    "institution": "Università Cattolica del Sacro Cuore",
+    "location": "Brescia, Italy",
+    "period": "2023–2026",
+    "status": "ongoing",
+    "focus": ["Mathematical foundations for AI/ML", "Algorithms and data structures", "Statistics and probability", "Computer Science fundamentals"]
+  },
+  {
+    "degree": "Computer Science Technician Diploma",
+    "institution": "IIS Marzoli",
+    "location": "Palazzolo sull'Oglio, Italy",
+    "period": "2016–2021",
+    "status": "completed",
+    "focus": ["Software development", "Networking", "Databases", "Systems administration"]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "availability_status": "Available for freelance projects and consulting engagements",
+  "timezone": "CET/CEST (Europe/Rome, UTC+1/+2)",
+  "work_style": "async-first, remote-friendly",
+  "preferred_engagement_types": [
+    "AI/ML consulting and implementation",
+    "LLM application development",
+    "Multi-agent system design",
+    "Technical advisory",
+    "Long-term projects"
+  ],
+  "preferred_project_length": "Medium to long-term (3+ months preferred, open to shorter for well-scoped projects)",
+  "communication": "Async-first via email or contact form. Quick calls available via booking.",
+  "booking_note": "Book a 30-minute intro call to discuss your needs and see if we're a good fit."
+}
