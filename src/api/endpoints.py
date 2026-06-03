@@ -140,9 +140,10 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
 
         response_parts: list[str] = []
         current_agent: str = "router_agent"
-        # Buffer to detect ReAct "Answer:" marker; reset on each tool call/result
-        step_buffer: str = ""
+        step_buffer: str = ""  # LLM output for current step (Answer: detection)
         in_answer_mode: bool = False
+        answer_buffer: str = ""  # Text accumulated after Answer: (loop detection)
+        answer_complete: bool = False  # True once the first answer ends
 
         try:
             async for event in handler.stream_events():
@@ -153,27 +154,46 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
                     current_agent = event_agent
                     step_buffer = ""
                     in_answer_mode = False
+                    answer_buffer = ""
+                    answer_complete = False
 
                 # ── streaming token ────────────────────────────────────────
                 delta = getattr(event, "delta", None)
                 if isinstance(delta, str) and delta:
                     if current_agent == "router_agent":
-                        # Router only routes — its ReAct reasoning is never user-visible
                         continue
 
-                    step_buffer += delta
+                    if answer_complete:
+                        continue  # Suppress post-answer looping
 
                     if in_answer_mode:
-                        response_parts.append(delta)
-                        yield _sse("token", {"text": delta})
-                    elif "Answer:" in step_buffer:
-                        in_answer_mode = True
-                        tail = step_buffer[step_buffer.index("Answer:") + len("Answer:") :]
-                        tail = tail.lstrip("\n ")
-                        if tail:
-                            response_parts.append(tail)
-                            yield _sse("token", {"text": tail})
-                    # else: still in Thought/Action reasoning — suppress
+                        # Check if a new ReAct reasoning cycle is starting
+                        candidate = answer_buffer + delta
+                        cut = -1
+                        for stop in ("\nThought:", "\nAction:"):
+                            pos = candidate.find(stop, max(0, len(answer_buffer) - len(stop) + 1))
+                            if pos >= 0 and (cut < 0 or pos < cut):
+                                cut = pos
+                        if cut >= 0:
+                            safe = candidate[len(answer_buffer) : cut]
+                            if safe:
+                                response_parts.append(safe)
+                                yield _sse("token", {"text": safe})
+                            answer_complete = True
+                        else:
+                            answer_buffer += delta
+                            response_parts.append(delta)
+                            yield _sse("token", {"text": delta})
+                    else:
+                        step_buffer += delta
+                        if "Answer:" in step_buffer:
+                            in_answer_mode = True
+                            tail = step_buffer[step_buffer.index("Answer:") + len("Answer:") :]
+                            tail = tail.lstrip("\n ")
+                            if tail:
+                                answer_buffer = tail
+                                response_parts.append(tail)
+                                yield _sse("token", {"text": tail})
                     continue
 
                 # ── tool call (list of ToolSelection) ──────────────────────
@@ -181,6 +201,8 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
                 if tool_calls and not delta:
                     step_buffer = ""
                     in_answer_mode = False
+                    answer_buffer = ""
+                    answer_complete = False
                     for tc in tool_calls:
                         name = getattr(tc, "tool_name", str(tc))
                         if name == "handoff":
@@ -196,6 +218,8 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
                 if tool_output is not None:
                     step_buffer = ""
                     in_answer_mode = False
+                    answer_buffer = ""
+                    answer_complete = False
                     tool_call_obj = getattr(event, "tool_call", None)
                     tool_name = getattr(tool_call_obj, "tool_name", "unknown")
 
