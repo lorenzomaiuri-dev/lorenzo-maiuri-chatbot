@@ -140,6 +140,9 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
 
         response_parts: list[str] = []
         current_agent: str = "router_agent"
+        # Buffer to detect ReAct "Answer:" marker; reset on each tool call/result
+        step_buffer: str = ""
+        in_answer_mode: bool = False
 
         try:
             async for event in handler.stream_events():
@@ -148,19 +151,41 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
                 if event_agent and event_agent != current_agent:
                     yield _sse("handoff", {"from": current_agent, "to": event_agent})
                     current_agent = event_agent
+                    step_buffer = ""
+                    in_answer_mode = False
 
                 # ── streaming token ────────────────────────────────────────
                 delta = getattr(event, "delta", None)
                 if isinstance(delta, str) and delta:
-                    response_parts.append(delta)
-                    yield _sse("token", {"text": delta})
+                    if current_agent == "router_agent":
+                        # Router only routes — its ReAct reasoning is never user-visible
+                        continue
+
+                    step_buffer += delta
+
+                    if in_answer_mode:
+                        response_parts.append(delta)
+                        yield _sse("token", {"text": delta})
+                    elif "Answer:" in step_buffer:
+                        in_answer_mode = True
+                        tail = step_buffer[step_buffer.index("Answer:") + len("Answer:") :]
+                        tail = tail.lstrip("\n ")
+                        if tail:
+                            response_parts.append(tail)
+                            yield _sse("token", {"text": tail})
+                    # else: still in Thought/Action reasoning — suppress
                     continue
 
                 # ── tool call (list of ToolSelection) ──────────────────────
                 tool_calls = getattr(event, "tool_calls", None)
                 if tool_calls and not delta:
+                    step_buffer = ""
+                    in_answer_mode = False
                     for tc in tool_calls:
                         name = getattr(tc, "tool_name", str(tc))
+                        if name == "handoff":
+                            # Agent transition already emitted as handoff SSE above
+                            continue
                         kwargs = getattr(tc, "tool_kwargs", {})
                         yield _sse("thinking", {"agent": current_agent, "step": f"calling {name}"})
                         yield _sse("tool_call", {"tool": name, "input": kwargs})
@@ -169,6 +194,8 @@ async def stream_chat_v2(request_data: ChatStreamRequest, request: Request):
                 # ── tool result ────────────────────────────────────────────
                 tool_output = getattr(event, "tool_output", None)
                 if tool_output is not None:
+                    step_buffer = ""
+                    in_answer_mode = False
                     tool_call_obj = getattr(event, "tool_call", None)
                     tool_name = getattr(tool_call_obj, "tool_name", "unknown")
 
