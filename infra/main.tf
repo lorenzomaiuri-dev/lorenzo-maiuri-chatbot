@@ -115,6 +115,13 @@ resource "google_service_account_iam_member" "wif_binding_website" {
   depends_on = [module.wif]
 }
 
+# Allow Cloud Run SA to read/write Firestore
+resource "google_project_iam_member" "cloudrun_firestore" {
+  project = var.project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${google_service_account.cloudrun.email}"
+}
+
 # Allow deploy SA (GitHub Actions) to impersonate the Cloud Run SA
 resource "google_service_account_iam_member" "deploy_impersonate_cloudrun" {
   service_account_id = google_service_account.cloudrun.name
