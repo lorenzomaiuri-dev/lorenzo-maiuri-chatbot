@@ -58,7 +58,8 @@ async def test_unauthorized(client: AsyncClient):
         ("/api/v2/chat/some_id/history", "GET"),
     ]:
         fn = client.post if method == "POST" else client.get
-        r = await fn(path, json={"message": "test"})
+        kwargs = {"json": {"message": "test"}} if method == "POST" else {}
+        r = await fn(path, **kwargs)
         assert r.status_code == status.HTTP_401_UNAUTHORIZED, f"Expected 401 for {method} {path}"
 
     r = await client.post(
