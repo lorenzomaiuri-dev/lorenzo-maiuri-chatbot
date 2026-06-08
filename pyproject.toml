@@ -5,7 +5,7 @@ description = "AI chatbot backend for lorenzomaiuri.dev"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.48.0",
+    "uvicorn[standard]>=0.49.0",
     "google-cloud-firestore",
     "httpx",
     "pydantic>=2.5.0",
