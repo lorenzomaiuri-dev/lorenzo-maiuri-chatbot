@@ -1,5 +1,6 @@
 import logging
 
+from google.genai import types as genai_types
 from llama_index.core.agent.workflow import AgentWorkflow, ReActAgent
 from llama_index.core.tools import FunctionTool
 from llama_index.llms.google_genai import GoogleGenAI
@@ -31,11 +32,17 @@ config = Config()
 
 
 def _llm() -> GoogleGenAI:
+    # Disable AFC so LlamaIndex's ReAct loop manages tool-calling iterations.
+    # AFC's default limit of 10 remote calls gets exhausted on complex multi-agent queries.
+    _no_afc = genai_types.GenerateContentConfig(
+        automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True)
+    )
     return GoogleGenAI(
         api_key=config.gemini_api_key,
         model=f"models/{config.gemini_model}",
         temperature=config.temperature,
         max_tokens=config.max_tokens,
+        generation_config=_no_afc,
     )
 
 
