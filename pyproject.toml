@@ -20,7 +20,7 @@ otel = [
     "openinference-instrumentation-llama_index>=4.3.0",
 ]
 dev = [
-    "pytest>=8.4.3",
+    "pytest>=9.1.0",
     "pytest-asyncio==1.4.0",
     "pytest-cov",
     "asgi-lifespan==2.1.0",
