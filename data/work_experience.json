@@ -1,8 +1,42 @@
 [
   {
-    "title": "ICT Analyst & Software Developer",
-    "company": "B2B Pharmaceutical Company",
-    "period": "2022 - Present",
-    "description": ["Led development of web/mobile features, middlewares, and APIs", "Implemented CI/CD pipelines, automated testing, and monitoring", "Collaborated with cross-functional teams to enhance system performance and reliability", "Migrated and integrated systems and databases", "Created dashboards, improved query performance, automated reports"]
+    "title": "AI & Software Engineering Consultant",
+    "company": "Self-employed",
+    "location": "Brescia, Italy",
+    "period": "2025 — present",
+    "type": "current",
+    "description": [
+      "Long-term technical consultant for B2B companies in pharma, SaaS, and digital automation, leading development and architecture of enterprise platforms",
+      "Designs and ships AI-driven systems including multi-agent chatbots, RAG platforms, NLP classifiers, and document AI for client production environments",
+      "Lead engineer on a multi-agent news chatbot reaching 8M+ monthly readers via a major Italian news outlet",
+      "Builds with Python, TypeScript, LlamaIndex/LangChain, AWS Bedrock, GCP, and modern agentic frameworks",
+      "Works closely with product owners and engineering teams to align technical roadmap with business priorities"
+    ]
+  },
+  {
+    "title": "Software Engineer & ICT Analyst",
+    "company": "Pharmaidea SRL",
+    "location": "Travagliato, Italy",
+    "period": "2022 — 2025",
+    "type": "past",
+    "description": [
+      "Led software development for web and mobile platforms used by millions of users",
+      "Developed and deployed a BERT-based NLP model for GDPR compliance: 85% accuracy, 90% reduction in manual review time",
+      "Led the migration of the data warehouse from Oracle to PostgreSQL with full ETL rewrite on Apache Airflow: 100% cost reduction, 20% query performance improvement",
+      "Built ML-based prioritization and anomaly detection systems integrated into B2B platforms",
+      "Implemented CI/CD pipelines, automated testing (Playwright), and observability (Grafana, OpenTelemetry)",
+      "Migrated Xamarin Forms mobile app to .NET MAUI, established Git-based version control across teams"
+    ]
+  },
+  {
+    "title": "AWS Cloud Developer Associate Trainer",
+    "company": "Corporate training provider (external)",
+    "location": "Italy",
+    "period": "2025 — 2026",
+    "type": "concurrent",
+    "description": [
+      "Delivered AWS Cloud Developer Associate certification training programs to corporate clients",
+      "External engagement parallel to consulting work — not a primary activity but signals depth of AWS practitioner experience"
+    ]
   }
 ]

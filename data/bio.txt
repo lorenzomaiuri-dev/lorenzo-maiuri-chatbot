@@ -1,7 +1,13 @@
-Lorenzo Maiuri is a software developer and AI engineer who combines deep technical expertise with a strong business-oriented mindset.
-With a background in mathematics and a passion for scalable, intelligent systems, he has worked across projects spanning applied AI, data engineering, mobile, api, web, database full-stack development — always with a focus on solving real-world problems.
-He specializes in natural language processing, LLM fine-tuning, and AI agents, and is particularly interested in designing autonomous, tool-using systems that are able to reason.
-Lorenzo’s approach is pragmatic and impact-driven: he cares not only about how things work, but about why they matter to the people and businesses using them.
-His journey into freelancing is the natural result of years spent building solutions across diverse personal, academic, and professional contexts — driven by curiosity, and refined through hands-on experience.
-When not working on intelligent automation or building software, you might find him immersed in theater, enjoying literature, or drawing.
-He’s currently based in Italy
+Lorenzo Maiuri is an independent AI engineer and software consultant based in northern Italy, working with startups and B2B companies across Europe.
+
+He builds production-grade AI systems — agentic platforms, conversational interfaces, NLP classifiers, and intelligent automation — that actually run in production, not just in demos. His work has powered platforms reaching 8M+ users, from cloud-native chatbots for major Italian media outlets to multi-tenant RAG SaaS and document AI for mobile apps.
+
+He started writing code at 15, graduated with full marks from a computer science technical school, and spent three years as Software Engineer & ICT Analyst at Pharmaidea, building platforms used by millions before going independent in 2025 to focus entirely on AI consulting. He's also completing an MSc in Artificial Intelligence in parallel with consulting work.
+
+His positioning is engineer first, consultant by necessity. The interesting work happens at the boundary between what a model can do and what the business actually needs — production-grade systems with monitoring, fallbacks, and clear operational boundaries, not notebook demos.
+
+His core stack is Python, TypeScript, LlamaIndex/LangChain, AWS, PostgreSQL & Redis — everything else as needed. He works deeply with LLM orchestration, RAG architectures, vector search, fine-tuning, and modern agentic frameworks.
+
+When not shipping AI systems, he does theater, reads classical and postmodern literature, draws, and trains at the gym. The variety helps — good systems thinking rarely comes from staring at the same screen all day.
+
+He's currently based in Italy, working remotely across the EU.

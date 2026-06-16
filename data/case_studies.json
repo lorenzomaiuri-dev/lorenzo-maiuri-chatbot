@@ -1,47 +1,233 @@
 [
   {
-    "slug": "ai-customer-support-chatbot",
-    "title": "AI-Powered Customer Support Chatbot",
-    "challenge": "A worldwide audio company needed to handle thousands of daily customer support tickets about product manuals, warranties, and troubleshooting. Response times averaged 48 hours, and support costs were rising. The documentation was scattered across PDFs, WordPress pages, and Salesforce records in multiple languages.",
-    "approach": "Built an end-to-end RAG chatbot using LlamaIndex and GPT-4o, with ChromaDB as the vector store for semantic search over all documentation. FastAPI served the backend, integrated directly into the WordPress customer portal via a custom widget.",
+    "slug": "news-chatbot",
+    "title": "Cloud-native news chatbot",
+    "visibility": "promote",
+    "has_public_page": true,
+    "public_url": "https://lorenzomaiuri.dev/work/news-chatbot",
+    "challenge": "One of Italy's major digital news outlets needed a conversational layer on top of their editorial content. Readers wanted context fast — what happened, why it matters, what to read next — but the editorial product was still organized as a stream of articles. The system had to summarize, compare, and recommend across the entire live corpus, plus surface trending stories from outside the archive, all without producing hallucinations or stale answers.",
+    "approach": "Multi-agent orchestration on Google Cloud. A coordinator agent receives the user query, dispatches to specialized retrieval, generation, and trending-detection agents, and streams the synthesized response back via SSE. Retrieval happens against a continuously indexed corpus of editorial content, updated in near-real-time as the newsroom publishes. Every answer is grounded in retrieved snippets with explicit citations.",
     "decisions": [
-      "Chose LlamaIndex over LangChain for its native document parsing pipeline and flexible retrieval strategies",
-      "Used ChromaDB over Pinecone to keep costs zero during low-traffic periods",
-      "Integrated Phoenix by Arize for real-time observability of retrieval quality and LLM traces",
-      "Deployed on AWS EC2 with Docker for predictable costs vs serverless"
+      "GCP-native architecture (Cloud Run + Firestore + Gemini) for a single operational surface instead of multi-cloud complexity",
+      "Semantic chunking by editorial unit (lede, body sections, pull quotes) instead of fixed token windows for better retrieval quality",
+      "Streaming SSE responses by default — first-token latency matters more than total latency for perceived speed",
+      "Hard refusal policy on empty retrieval — the bot never falls back to general world knowledge, eliminating the entire class of 'confidently wrong' failures"
     ],
-    "results": "Reduced average response time from 48h to under 30 seconds. Deflected 60%+ of tier-1 support tickets. Customer satisfaction score increased significantly. Support team could focus on complex cases.",
-    "retrospective": "The biggest challenge was ingestion quality — raw PDFs had inconsistent formatting. A custom pre-processing pipeline with OCR and section detection was key. If I were to redo this, I'd invest earlier in structured data extraction rather than raw text chunking.",
-    "stack": ["Python", "FastAPI", "LlamaIndex", "ChromaDB", "GPT-4o", "Redis", "Docker", "AWS EC2", "Salesforce API", "Phoenix by Arize AI"]
+    "results": "Deployed across the publisher's flagship product reaching 8M+ monthly readers. End-to-end response time under 3 seconds including retrieval, generation, and streaming. 99.9% uptime SLA maintained with no rollback events since go-live. Live corpus indexing: newsroom publishes and the bot can answer within minutes.",
+    "retrospective": "The semantic chunking pass was implemented after the first quality complaints from the editorial team. In hindsight, investing in retrieval quality early would have saved roughly six weeks of prompt-engineering bandaids trying to compensate for noisy context. The mantra 'retrieval beats prompting' feels obvious now, but only after the fact. The second lesson is on cost observability: LLM token spend is non-trivial to forecast when traffic is bursty and questions vary wildly in retrieval depth.",
+    "stack": [
+      "Next.js",
+      "TypeScript",
+      "FastAPI",
+      "Python",
+      "LlamaIndex",
+      "Gemini",
+      "Firestore",
+      "GCP Cloud Run",
+      "Docker",
+      "GitHub Actions"
+    ]
+  },
+  {
+    "slug": "news-ingestion-rag",
+    "title": "AI news ingestion & RAG platform",
+    "visibility": "promote",
+    "has_public_page": false,
+    "challenge": "A B2B SaaS client wanted to launch a multi-tenant platform that ingests news from arbitrary sources and exposes them through a natural language interface. Hard requirements were: support for arbitrary RSS and JSON feed formats, fully isolated tenant data, the ability to swap LLM providers per tenant, and absolute data residency guarantees — client data must never leave AWS.",
+    "approach": "Monorepo TypeScript architecture with Next.js and Vercel AI SDK on the frontend, Bedrock for inference (data residency requirement), and S3 with vector storage for the RAG layer. The conversational agent uses a hybrid strategy: per query, the LLM decides whether to use structured tool calls (filter by date, topic, source) or semantic RAG retrieval — sometimes combining both. Infrastructure is fully managed via Terraform.",
+    "decisions": [
+      "TypeScript monorepo for end-to-end type safety across frontend, backend, and shared schemas",
+      "AWS Bedrock as default LLM provider for hard data-residency guarantees, with adapter pattern for external models",
+      "S3-based vector storage instead of dedicated vector DB to keep ops surface minimal and costs predictable",
+      "Hybrid agent strategy (tool-use OR RAG, decided per query) instead of forcing all queries through retrieval"
+    ],
+    "results": "Platform handles tens of thousands of articles per day across tenants. Agent responses arrive in seconds. Infrastructure fully reproducible via Terraform — new tenants can be provisioned without manual cloud configuration.",
+    "retrospective": "The hybrid tool-use-or-RAG decision was the key architectural insight. Most news questions don't actually need semantic retrieval — they need structured filtering ('show me defense articles from last week'). Forcing everything through embeddings would have been slower, more expensive, and less accurate for the majority of queries.",
+    "stack": [
+      "Next.js",
+      "TypeScript",
+      "Vercel AI SDK",
+      "AWS Bedrock",
+      "S3 Vectors",
+      "DynamoDB",
+      "Terraform",
+      "AWS"
+    ]
+  },
+  {
+    "slug": "expirations-document-ai",
+    "title": "Document AI for expiration tracking",
+    "visibility": "promote",
+    "has_public_page": false,
+    "challenge": "A consumer mobile app needed a backend AI service that could extract expiration dates from photos of arbitrary documents — receipts, medical prescriptions, ID cards, anything a user might want to track. The challenge was extracting structured data from documents with no standardized format, often photographed badly (blurry, partial, weird angles), while keeping the entire inference pipeline within the client's AWS perimeter for privacy.",
+    "approach": "Python + FastAPI backend service serving a Flutter mobile client. Vision LLM pipeline orchestrated via LangChain, with AWS Bedrock as the inference layer for data residency. The pipeline classifies the document type, extracts the relevant expiration date and metadata, and returns structured data the mobile client writes into the device calendar.",
+    "decisions": [
+      "AWS Bedrock for inference instead of OpenAI to keep all data within the client's AWS account",
+      "Structured prompting with document-type-aware extraction templates instead of generic 'find the date' prompts",
+      "Backend-only role — let the Flutter team own the mobile app, focus on the AI service",
+      "Calendar sync handled client-side after extraction to avoid storing user data server-side"
+    ],
+    "results": "Photo-to-calendar pipeline completing in seconds end-to-end. Privacy-by-design: no user data leaves the client's AWS perimeter at any point in the pipeline.",
+    "retrospective": "The interesting engineering wasn't the LLM call — it was the prompt engineering needed to handle document quality variance. Different document types have wildly different layouts, and a one-size-fits-all prompt produced noisy results. Per-type extraction templates moved accuracy from 'demo-grade' to 'product-grade'.",
+    "stack": [
+      "Python",
+      "FastAPI",
+      "LangChain",
+      "AWS Bedrock",
+      "Vision LLMs",
+      "Flutter (client)",
+      "AWS"
+    ]
+  },
+  {
+    "slug": "lorenzobot",
+    "title": "LorenzoBot",
+    "visibility": "promote",
+    "has_public_page": true,
+    "public_url": "https://lorenzomaiuri.dev/chat",
+    "challenge": "I wanted a chatbot on my own portfolio site that wasn't a toy — that actually demonstrated the agentic patterns I claim to build for clients. Generic 'RAG over CV' chatbots are forgettable. The bot needed to show streaming, multi-agent reasoning, structured citations linking back to the rest of the site, and action triggers that integrate with the UI (open contact modal, navigate, scroll).",
+    "approach": "Multi-agent system with a router and four specialists (project agent, technical agent, availability agent, contact agent), built on LlamaIndex AgentWorkflow. Streaming SSE responses, structured citations that render as clickable chips linking to /work/[slug] pages, and action events that trigger UI behaviors in the Next.js frontend. The architecture deliberately mirrors the news chatbot for the IT outlet, scaled down to portfolio scope.",
+    "decisions": [
+      "LlamaIndex AgentWorkflow over custom multi-agent orchestration — first-class handoff support and streaming events out of the box",
+      "Cloud Run scale-to-zero for ~zero cost when idle — the bot costs nothing while no one is using it",
+      "Firestore over MongoDB to stay fully GCP-native and reduce external dependencies",
+      "Structured citations as part of the stream protocol, not post-message — frontend can render chips inline"
+    ],
+    "results": "Streaming chat with visible reasoning, tool calls as discrete chips, citations linking to real /work pages, and integration with the contact modal. Open source under AGPL-3.0. Currently in production on lorenzomaiuri.dev.",
+    "retrospective": "The self-referential nature is the point. If a visiting CTO can interact with a real multi-agent system in seconds, the portfolio's 'I build AI systems that ship' headline isn't a claim — it's a demonstration.",
+    "stack": [
+      "Python",
+      "FastAPI",
+      "LlamaIndex AgentWorkflow",
+      "Gemini 3.5 Flash",
+      "Firestore",
+      "GCP Cloud Run",
+      "OpenTelemetry + Phoenix",
+      "Terraform"
+    ]
+  },
+  {
+    "slug": "bert-gdpr",
+    "title": "BERT GDPR classifier",
+    "visibility": "promote",
+    "has_public_page": false,
+    "challenge": "A B2B pharmaceutical client needed to ensure GDPR compliance on free-text order notes containing potentially sensitive personal data. The existing process was semi-manual — operators reviewed notes flagged by simple keyword rules, leading to both false positives (wasted time) and false negatives (missed personal references in compliance audit).",
+    "approach": "Fine-tuned BERT on a curated dataset of order notes labeled for personal data presence. Built around the existing .NET production stack: the model is exposed as an inference service, and the existing compliance workflow calls it to score notes before review queue assignment.",
+    "decisions": [
+      "Fine-tuned BERT over commercial NER APIs to keep data on-premise (regulated industry)",
+      "Binary classification (contains personal data: yes/no) instead of entity extraction — better fit for the workflow needs",
+      "Integration with existing .NET stack via REST inference endpoint, no rewrites of upstream systems",
+      "Retraining pipeline included from day one — model can be updated as data distribution evolves"
+    ],
+    "results": "85% accuracy on personal data detection. 90% reduction in manual review time. Operators now focus only on high-confidence flagged notes, with full audit trail of model decisions.",
+    "retrospective": "Production ML in a regulated industry forces decisions you wouldn't make in a notebook. On-premise constraints ruled out half the obvious solutions. The discipline of integrating with an existing .NET stack, instead of reinventing the workflow, was what made this ship in real production.",
+    "stack": [
+      "PyTorch",
+      "BERT",
+      "Hugging Face Transformers",
+      "Python",
+      ".NET",
+      "C#"
+    ]
   },
   {
     "slug": "data-warehouse-modernization",
-    "title": "Data Warehouse Modernization: Oracle to PostgreSQL",
-    "challenge": "A B2B pharmaceutical company was paying significant Oracle licensing costs for a data warehouse used primarily for internal reporting. The ETL pipelines were fragile custom scripts with no observability, and query performance was degrading as data volume grew.",
-    "approach": "Migrated the schema and data to PostgreSQL with minimal downtime using a parallel-run strategy. Replaced custom ETL scripts with Apache Airflow DAGs for orchestration. Added CI/CD pipelines for schema migrations and introduced Grafana for query performance monitoring.",
+    "title": "Data warehouse modernization: Oracle to PostgreSQL",
+    "visibility": "promote",
+    "has_public_page": false,
+    "challenge": "A B2B pharmaceutical company was paying significant Oracle licensing costs for a data warehouse used primarily for internal reporting. The ETL pipelines were fragile custom scripts with no observability, and query performance was degrading as data volume grew. Dozens of downstream consumers (reports, dashboards, internal tools) depended on the warehouse — any disruption would cascade.",
+    "approach": "Parallel-run migration strategy: ran Oracle and PostgreSQL in sync for four weeks before cutover to validate data integrity. Replaced custom ETL scripts with Apache Airflow DAGs for orchestration. Added CI/CD pipelines for schema migrations and dbt for transformation logic. Introduced query performance monitoring.",
     "decisions": [
-      "Parallel-run migration strategy: ran Oracle and PostgreSQL in sync for 4 weeks before cutover",
+      "Parallel-run strategy for four weeks before cutover — confidence over speed",
       "Apache Airflow over custom cron jobs for retry logic, observability, and dependency management",
-      "PostgreSQL partitioning for the largest fact tables to maintain query performance",
-      "Automated regression testing suite comparing query results between old and new systems"
+      "PostgreSQL partitioning for the largest fact tables to maintain query performance at scale",
+      "Automated regression testing comparing query results between old and new systems before every release"
     ],
-    "results": "100% reduction in licensing costs. 20% improvement in average query performance. ETL reliability went from ~85% to 99.5% success rate. Full migration completed with zero data loss.",
-    "retrospective": "The hardest part was Oracle-specific SQL syntax that had no direct PostgreSQL equivalent. Building a comprehensive test suite before starting was the best decision — it gave confidence at every migration step.",
-    "stack": ["PostgreSQL", "Oracle", "Python", "Apache Airflow", "Docker", "CI/CD", "Grafana", "SQL"]
+    "results": "100% reduction in Oracle licensing costs. 20% average query performance improvement. ETL reliability went from ~85% to 99.5% success rate. Zero data loss during cutover. Full migration completed end-to-end across multiple months.",
+    "retrospective": "The hardest part wasn't the SQL translation — it was managing the dozens of downstream consumers and coordinating their cutover without disrupting business operations. Building a comprehensive regression test suite before starting was the best decision; it gave confidence at every migration step.",
+    "stack": [
+      "PostgreSQL",
+      "Oracle",
+      "Apache Airflow",
+      "dbt",
+      "Python",
+      "SQL",
+      "Docker",
+      "CI/CD"
+    ]
   },
   {
-    "slug": "gentleman-closet",
-    "title": "Gentleman Closet: AI-Powered Smart Wardrobe Assistant",
-    "challenge": "Personal project exploring offline-first mobile development with AI integration. The goal was to build a wardrobe management app that works without internet, provides intelligent outfit suggestions based on weather and occasion, and lays the groundwork for future LLM-based style advice.",
-    "approach": "Built with Flutter for cross-platform mobile (iOS/Android). Used Hive for local-first storage with planned sync. Integrated Gemini API for outfit suggestions. Provider for state management.",
+    "slug": "logistics-anomaly",
+    "title": "Logistics anomaly dashboard",
+    "visibility": "promote",
+    "has_public_page": false,
+    "challenge": "A B2B pharmaceutical client's finance team was manually reconciling courier invoices against internal shipment data — a process taking hours weekly and prone to missing pricing discrepancies. Couriers were occasionally invoicing for shipments that didn't match the actual deliveries (wrong weight class, wrong service tier, occasional duplicate billing).",
+    "approach": "Built a dashboard that ingests courier invoices, cross-references them with internal shipment data, and runs anomaly detection on the matched pairs. Anomalies are surfaced in PowerBI dashboards for finance review, with drill-down into the underlying records. The anomaly detection model is intentionally simple — statistical outliers plus business-rule overlays.",
     "decisions": [
-      "Flutter over React Native for better performance and native feel on both platforms",
-      "Hive over SQLite for the offline-first key-value store simplicity",
-      "Gemini API for suggestions over a local model — acceptable trade-off for MVP phase",
-      "Provider over Riverpod for simplicity at current project scale"
+      "Simple statistical anomaly detection plus business rules instead of deep learning — interpretability and audit trail matter more than F1 score",
+      "PowerBI for the dashboard layer to leverage the client's existing BI tooling",
+      "Python + scikit-learn for the detection pipeline, scheduled as part of the existing Airflow DAGs",
+      "Drill-down to source records always available — finance team needs to verify before acting"
     ],
-    "results": "Working MVP with wardrobe management, outfit planning, and AI suggestions. Active development ongoing.",
-    "retrospective": "Still in active development. The offline-first architecture decision was correct — users expect instant response for wardrobe browsing. The LLM integration is the most interesting part to expand.",
-    "stack": ["Flutter", "Dart", "Hive", "Gemini API", "Provider", "iOS", "Android"]
+    "results": "70% reduction in manual checking time. Finance team focuses only on flagged discrepancies. Identified systematic pricing errors that had been missed for months.",
+    "retrospective": "Over-engineering with deep learning would have been waste. The signal in invoice anomalies is often obvious once you have the right joined view — the engineering challenge was data integration, not modeling.",
+    "stack": [
+      "Python",
+      "scikit-learn",
+      "pandas",
+      "PowerBI",
+      "PostgreSQL",
+      "Apache Airflow"
+    ]
+  },
+  {
+    "slug": "order-prioritization",
+    "title": "Order prioritization engine",
+    "visibility": "promote",
+    "has_public_page": false,
+    "challenge": "A B2B pharmaceutical platform was processing customer orders in arrival order, which meant time-critical requests (urgent deliveries, high-value clients) sometimes waited behind routine orders. Operators didn't have time to manually re-prioritize the queue dozens of times per day.",
+    "approach": "Worked with the client's data scientists to integrate a machine learning prioritization model into the existing B2B platform's operator queue. The model predicts order urgency based on multiple business factors (client tier, delivery deadline, order value, historical patterns) and re-ranks the operator queue in real-time.",
+    "decisions": [
+      "ML model trained and validated by client data team, integrated by me into the .NET production stack",
+      "Real-time scoring on order arrival rather than batch re-ranking",
+      "Operator override always available — model recommends, humans decide on edge cases",
+      "Continuous A/B testing of model updates against the baseline rule-based system"
+    ],
+    "results": "20% faster processing for critical orders. Operator workflow unchanged — the queue just orders itself smarter.",
+    "retrospective": "The technical work was straightforward — the engineering value was integrating ML inference into an existing .NET production system without disrupting operator workflows. The key was treating the model as a service the existing system consumed, not as a rewrite of how the platform works.",
+    "stack": [
+      "scikit-learn",
+      "Python",
+      ".NET",
+      "C#"
+    ]
+  },
+  {
+    "slug": "ai-customer-support-chatbot",
+    "title": "AI customer support chatbot",
+    "visibility": "mention_if_asked",
+    "has_public_page": false,
+    "challenge": "A global audio company was handling thousands of daily support tickets about product manuals, warranties, and troubleshooting. Documentation was scattered across PDFs, WordPress pages, and Salesforce records in multiple languages. Average response time was 48 hours and support costs were rising.",
+    "approach": "End-to-end RAG chatbot using LlamaIndex and GPT-4o, with ChromaDB as the vector store for semantic search over all documentation. FastAPI backend integrated directly into the WordPress customer portal via a custom widget. Phoenix by Arize for observability of retrieval quality and LLM traces.",
+    "decisions": [
+      "LlamaIndex over LangChain for its native document parsing pipeline and flexible retrieval strategies",
+      "ChromaDB over Pinecone to keep costs zero during low-traffic periods",
+      "Phoenix by Arize for real-time observability of retrieval and LLM traces — invaluable for debugging",
+      "AWS EC2 with Docker over serverless for predictable costs at sustained traffic levels"
+    ],
+    "results": "Reduced average response time from 48h to under 30 seconds. Deflected 60%+ of tier-1 support tickets. Customer satisfaction score increased significantly. Support team refocused on complex cases.",
+    "retrospective": "The biggest challenge was ingestion quality — raw PDFs had inconsistent formatting. A custom pre-processing pipeline with OCR and section detection was key. If I were to redo this, I'd invest earlier in structured data extraction rather than raw text chunking.",
+    "stack": [
+      "Python",
+      "FastAPI",
+      "LlamaIndex",
+      "ChromaDB",
+      "GPT-4o",
+      "Redis",
+      "Docker",
+      "AWS EC2",
+      "Salesforce API",
+      "Phoenix by Arize AI"
+    ]
   }
 ]

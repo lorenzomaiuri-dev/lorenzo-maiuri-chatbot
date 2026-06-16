@@ -1,20 +1,117 @@
 {
-  "programming_languages": ["Python", "JavaScript/TypeScript", "C#", "Java", "PHP", "C", "C++", "Dart", "Node.js", "HTML", "CSS", "SQL", ".NET", "R"],
-  "ai": ["Transformers", "TensorFlow", "Keras", "PyTorch", "scikit-learn", "Hugging Face", "OpenAI", "LangChain", "LlamaIndex", "RAG (Retrieval-Augmented Generation)", "LLMs (Large Language Models)", "Chatbots", "Generative AI", "AI Agents", "Computer Vision", "Natural Language Processing (NLP)", "SmolAgent"],
-  "web_frameworks": ["Django", "Spring Boot", "ASP.NET Core", "React", "Angular", "Next.js", "Tailwind CSS", "Bootstrap", "Jquery"],
-  "mobile_frameworks": ["Flutter", "React Native", "Xamarin", "Maui"],
-  "api_development": ["RESTful APIs", "SOAP APIs", "GraphQL", "OpenAPI/Swagger", "gRPC", "WebSockets", "FastAPI", "Flask", "ASP.NET Core Web API", "Express.js"],
-  "cloud_platforms": ["AWS", "Azure", "GCP", "Heroku", "Vercel", "Cloudflare", "DigitalOcean"],
-  "databases": ["MongoDB", "PostgreSQL", "Redis", "MySQL", "SQLite", "Firebase", "DynamoDB", "Oracle", "Sqlserver", "ChromaDB", "Neo4j", "Faiss"],
-  "data_science": ["Pandas", "NumPy", "Matplotlib", "Seaborn", "SciPy", "Statsmodels", "Jupyter", "Apache Spark", "PowerBi", "Qlik", "Apache Airflow"],
-  "devops": ["Docker", "Kubernetes", "Github Workflows", "Jenkins", "Terraform", "Ansible", "Prometheus", "Grafana", "Phoenix", "nginx", "Apache Tomcat", "IIS", "OpenTelemetry", "MlFlow"],
-  "security": ["OWASP", "SSL/TLS", "JWT", "OAuth2", "Identity & Access Management (IAM, RBAC)", "API security (rate-limiting, throttling)", "Http Security Headers", "Cross-Site Scripting (XSS)", "SQL Injection"],
-  "testing": ["Unit Testing", "Integration Testing", "End-to-End Testing", "Test Automation", "Regression Test", "Selenium", "Appium", "Playwright", "Jest", "PyTest", "Postman"],
-  "version_control": ["Git", "GitHub", "Azure DevOps", "SVN (Subversion)", "CVS (Concurrent Versions System)"],
-  "operating_systems": ["Linux (Ubuntu, Debian, CentOS, Gentoo)", "Windows", "macOS", "Android", "iOS"],
-  "project_management": ["ITIL", "Agile", "Scrum", "Kanban", "Jira", "Trello", "Confluence", "Notion", "Toggl"],  
-  "design_patterns": ["MVC (Model-View-Controller)", "MVVM (Model-View-ViewModel)", "Singleton", "Factory", "Observer", "Decorator", "Strategy", "Circuit Breaker", "Repository", "Dependency Injection", "Command Pattern", "Adapter Pattern", "Facade Pattern", "Builder Pattern", "Prototype Pattern", "SOLID Principles", "GOF (Gang of Four) Patterns"],
-  "architecture": ["Microservices", "Monolithic", "Serverless", "Event-Driven Architecture", "CQRS (Command Query Responsibility Segregation)", "Event Sourcing", "Domain-Driven Design (DDD)", "Service-Oriented Architecture (SOA)", "API Gateway", "Message Queues (RabbitMQ, Kafka, AWS Event Bridge)", "ETL (Extract, Transform, Load)", "Data Warehousing", "Data Lakes"],
-  "professional_traits": ["Problem Solving", "Communication", "Teamwork", "Adaptability", "Time Management", "Critical Thinking", "Creativity", "Leadership"],
-  "languages": ["English", "Italian"]
+  "programming_languages": {
+    "core": ["Python", "TypeScript", "JavaScript", "SQL"],
+    "familiar": ["C#", ".NET", "Java", "PHP", "Dart", "C", "C++", "R"]
+  },
+  "ai_ml": {
+    "core": [
+      "LLMs (Large Language Models)",
+      "AI Agents",
+      "RAG (Retrieval-Augmented Generation)",
+      "Multi-agent orchestration",
+      "LangChain",
+      "LlamaIndex",
+      "Hugging Face Transformers",
+      "PyTorch",
+      "Fine-tuning",
+      "Natural Language Processing (NLP)",
+      "Generative AI",
+      "BERT",
+      "Vector search",
+      "Vercel AI SDK"
+    ],
+    "familiar": [
+      "TensorFlow",
+      "Keras",
+      "scikit-learn",
+      "Computer Vision",
+      "Phoenix / Arize observability",
+      "LangSmith",
+      "MLflow",
+      "vLLM / Ollama (local inference)",
+      "SmolAgent"
+    ]
+  },
+  "llm_providers": {
+    "core": ["Gemini", "OpenAI", "AWS Bedrock"],
+    "familiar": ["Anthropic Claude", "Hugging Face Inference"]
+  },
+  "backend": {
+    "core": ["FastAPI", "Python backends", "Node.js / TypeScript backends", "RESTful APIs", "Async architectures"],
+    "familiar": ["ASP.NET Core", "Django", "Flask", "Spring Boot", "Express.js", "gRPC", "GraphQL", "WebSockets", "SOAP"]
+  },
+  "databases": {
+    "core": ["PostgreSQL", "Redis", "MongoDB"],
+    "familiar": ["SQL Server", "Oracle", "MySQL", "SQLite", "Firestore", "DynamoDB", "Firebase", "ChromaDB", "Qdrant", "pgvector", "FAISS", "Neo4j"]
+  },
+  "data_engineering": {
+    "core": ["Apache Airflow", "ETL pipelines", "Data warehousing", "PostgreSQL optimization", "pandas", "dbt"],
+    "familiar": ["Apache Spark", "polars", "NumPy", "Apache Kafka", "DynamoDB Streams", "RabbitMQ", "PowerBI", "Qlik"]
+  },
+  "cloud_platforms": {
+    "core": ["AWS", "GCP"],
+    "familiar": ["Azure", "Cloudflare", "Vercel", "Heroku", "DigitalOcean"]
+  },
+  "devops_infra": {
+    "core": ["Docker", "Terraform", "GitHub Actions", "CI/CD"],
+    "familiar": ["Kubernetes", "Ansible", "Jenkins", "Prometheus", "Grafana", "OpenTelemetry", "nginx", "Apache Tomcat", "IIS"]
+  },
+  "frontend": {
+    "core": ["React", "Next.js", "Tailwind CSS"],
+    "familiar": ["Angular", "Bootstrap", "jQuery"]
+  },
+  "mobile": {
+    "core": [],
+    "familiar": ["Flutter", "React Native", "Xamarin", ".NET MAUI"]
+  },
+  "security": {
+    "core": ["OWASP basics", "JWT", "OAuth2", "API security (rate-limiting, auth)", "HTTP security headers"],
+    "familiar": ["SSL/TLS", "IAM/RBAC", "XSS prevention", "SQL injection prevention"]
+  },
+  "testing": {
+    "core": ["pytest", "unit testing", "integration testing"],
+    "familiar": ["Playwright", "Selenium", "Appium", "Jest", "Postman", "regression testing"]
+  },
+  "architecture_patterns": {
+    "core": [
+      "Microservices",
+      "Event-driven architecture",
+      "Serverless",
+      "Domain-Driven Design (DDD)",
+      "ETL / Data warehousing",
+      "SOLID principles",
+      "Repository pattern",
+      "Dependency injection"
+    ],
+    "familiar": [
+      "CQRS",
+      "Event Sourcing",
+      "API Gateway patterns",
+      "Message queues",
+      "Adapter / Facade / Strategy / Factory / Observer / Builder patterns"
+    ]
+  },
+  "version_control": {
+    "core": ["Git", "GitHub"],
+    "familiar": ["Azure DevOps", "SVN"]
+  },
+  "operating_systems": {
+    "core": ["Linux (Debian, Ubuntu)", "Windows"],
+    "familiar": ["macOS", "Gentoo", "CentOS"]
+  },
+  "project_management": {
+    "core": ["Agile", "Scrum", "Kanban", "Jira", "Confluence", "Notion"],
+    "familiar": ["ITIL", "Trello"]
+  },
+  "professional_traits": [
+    "Problem solving",
+    "Async-first communication",
+    "Production-first mindset",
+    "Long-term technical thinking",
+    "Cross-functional collaboration"
+  ],
+  "languages": {
+    "native": ["Italian"],
+    "professional": ["English"]
+  }
 }

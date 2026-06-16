@@ -1,18 +1,44 @@
 [
   {
+    "degree": "MSc in Artificial Intelligence",
+    "institution": "Università Cattolica del Sacro Cuore",
+    "location": "Brescia, Italy",
+    "period": "2026 — ongoing",
+    "status": "ongoing",
+    "focus": [
+      "Advanced machine learning and deep learning",
+      "Production ML systems and MLOps",
+      "Agentic architectures and reasoning",
+      "Applied research"
+    ],
+    "notes": "Pursued in parallel with consulting work"
+  },
+  {
     "degree": "BSc in Mathematics and Computer Science",
     "institution": "Università Cattolica del Sacro Cuore",
     "location": "Brescia, Italy",
-    "period": "2023–2026",
-    "status": "ongoing",
-    "focus": ["Mathematical foundations for AI/ML", "Algorithms and data structures", "Statistics and probability", "Computer Science fundamentals"]
+    "period": "2023 — 2026",
+    "status": "completed",
+    "focus": [
+      "Mathematical foundations for AI and ML",
+      "Algorithms and data structures",
+      "Statistics and probability",
+      "Computer Science fundamentals"
+    ],
+    "notes": "Completed alongside professional experience"
   },
   {
     "degree": "Computer Science Technician Diploma",
     "institution": "IIS Marzoli",
     "location": "Palazzolo sull'Oglio, Italy",
-    "period": "2016–2021",
+    "period": "2016 — 2021",
     "status": "completed",
-    "focus": ["Software development", "Networking", "Databases", "Systems administration"]
+    "grade": "100/100",
+    "focus": [
+      "Software development fundamentals",
+      "Networking and systems administration",
+      "Databases (NoSQL focus in final year)"
+    ],
+    "notes": "Won the 'Storie di Alternanza' contest (Brescia Chamber of Commerce) for a cloud-controlled IoT alarm clock — first prize"
   }
 ]
