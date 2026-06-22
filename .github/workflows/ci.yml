@@ -11,7 +11,7 @@ jobs:
     name: Pre-commit checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -40,7 +40,7 @@ jobs:
       CALCOM_USERNAME: ${{ vars.CALCOM_USERNAME }}
       CALCOM_EVENT_SLUG: ${{ vars.CALCOM_EVENT_SLUG }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
