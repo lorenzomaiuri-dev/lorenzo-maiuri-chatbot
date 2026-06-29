@@ -9,7 +9,7 @@ dependencies = [
     "google-cloud-firestore",
     "httpx",
     "pydantic>=2.5.0",
-    "llama-index-core>=0.14.0",
+    "llama-index-core>=0.14.23",
     "llama-index-llms-google-genai>=0.1.14",
     "python-dotenv>=1.0.1",
 ]
